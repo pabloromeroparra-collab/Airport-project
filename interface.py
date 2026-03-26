@@ -21,7 +21,7 @@ def show_airports():
         SetSchengen(airports[i])
         airport = airports[i]
 
-        line = airport.ICAO + " | " + str(airport.latitude) + " " + str(airport.longitude)
+        line = airport.ICAO + " | " + "{:.4f}".format(airport.latitude) + " " + "{:.4f}".format(airport.longitude)
         line += " | Schengen: " + str(airport.Schengen)
 
         output = output + line + "\n"
