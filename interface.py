@@ -114,7 +114,7 @@ tk.Label(window, text="Longitude").pack()
 entry_lon = tk.Entry(window)
 entry_lon.pack()
 
-# buttons (simple vertical list)
+# buttons
 
 tk.Button(window, text="Load Airports", command=load_airports).pack()
 tk.Button(window, text="Show Airports", command=show_airports).pack()
@@ -124,7 +124,7 @@ tk.Button(window, text="Save Schengen", command=save_schengen).pack()
 tk.Button(window, text="Plot Airports", command=plot_airports).pack()
 tk.Button(window, text="Map Airports", command=map_airports).pack()
 
-# output label (simple, as you wanted)
+# output label
 label = tk.Label(window, text="")
 label.pack()
 
