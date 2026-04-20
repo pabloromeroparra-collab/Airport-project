@@ -68,7 +68,57 @@ def LoadArrivals(filename):                       # aqui comença part paula
         return []
 
 
-def MapFlights(aircrafts):
+
+def PlotAirlines(aircrafts):                     # inici part Martí
+    if len(aircrafts) == 0:
+        print("Error, empty aircraft list")
+        return
+    airlines=[]
+    for aircraft.company in aircrafts:
+        if aircraft in airlines:
+            airlines[aircraft.company]  =  airlines[aircraft.company]+1
+        else:
+            airlines[aircraft.company] = 1
+
+    plt.bar(airlines.keys(), airlines.values())         #grafica
+    plt.title("Flights per airline")
+    plt.xlabel("Airline")
+    plt.ylabel("Number of flights")
+    plt.show()
+
+def PlotFlightsType(aircrafts):
+    if len(aircrafts)==0:
+        print("Empty aircraft list")
+        return
+
+    cont_shengen=[]
+    cont_no_schengen=[]
+    for aircraft in aircrafts:
+        airline= aircraft.company
+        if airline not in cont_shengen:
+            cont_schengen[airline]=0
+            cont_no_schengen[airline]=0
+
+        if aircraft.origin in schengen:
+            cont_shengen[aircraft.origin]= cont_shengen[aircraft.origin]+1
+        else:
+            cont_no_schengen[aircraft.origin]= cont_no_schengen[aircraft.origin]+1
+
+    airlines = list(schengen_counts.keys())
+    schengen_values = list(schengen_counts.values())
+    non_schengen_values = list(non_schengen_counts.values())
+
+    plt.bar(airlines, schengen_values, label="Schengen")
+    plt.bar(airlines, non_schengen_values, bottom=schengen_values, label="Non-Schengen")
+    plt.title("Schengen vs Non-Schengen flights")
+    plt.xlabel("Airline")
+    plt.ylabel("Number of flights")
+    plt.legend()
+    plt.show()                                                     # final part Martí
+
+
+
+def MapFlights(aircrafts):                       #part Paula
     if len(aircrafts) == 0:
         print('Empty aircraft list')
         return
@@ -163,51 +213,4 @@ def LongDistanceArrivals(aircrafts):
     return aircrafts2000                                  # fins aqui arriba part paula
 
 
-
-def PlotAirlines(aircrafts):                     # inici part Martí
-    if len(aircrafts) == 0:
-        print("Error, empty aircraft list")
-        return
-    airlines=[]
-    for aircraft.company in aircrafts:
-        if aircraft in airlines:
-            airlines[aircraft.company]  =  airlines[aircraft.company]+1
-        else:
-            airlines[aircraft.company] = 1
-
-    plt.bar(airlines.keys(), airlines.values())         #grafica
-    plt.title("Flights per airline")
-    plt.xlabel("Airline")
-    plt.ylabel("Number of flights")
-    plt.show()
-
-def PlotFlightsType(aircrafts):
-    if len(aircrafts)==0:
-        print("Empty aircraft list")
-        return
-
-    cont_shengen=[]
-    cont_no_schengen=[]
-    for aircraft in aircrafts:
-        airline= aircraft.company
-        if airline not in cont_shengen:
-            cont_schengen[airline]=0
-            cont_no_schengen[airline]=0
-
-        if aircraft.origin in schengen:
-            cont_shengen[aircraft.origin]= cont_shengen[aircraft.origin]+1
-        else:
-            cont_no_schengen[aircraft.origin]= cont_no_schengen[aircraft.origin]+1
-
-    airlines = list(schengen_counts.keys())
-    schengen_values = list(schengen_counts.values())
-    non_schengen_values = list(non_schengen_counts.values())
-
-    plt.bar(airlines, schengen_values, label="Schengen")
-    plt.bar(airlines, non_schengen_values, bottom=schengen_values, label="Non-Schengen")
-    plt.title("Schengen vs Non-Schengen flights")
-    plt.xlabel("Airline")
-    plt.ylabel("Number of flights")
-    plt.legend()
-    plt.show()                                                     # final part Martí
 
