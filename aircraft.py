@@ -66,8 +66,52 @@ def LoadArrivals(filename):                       # aqui comença part paula
 
     except FileNotFoundError:
         return []
+#inici part pablo
 
+def SaveFlights(aircrafts, filename):
+    if not aircrafts:
+        print("Error: aircraft list is empty.")
+        return -1
 
+    try:
+        with open(filename, "w") as f:
+            for ac in aircrafts:
+                fields = [
+                    ac.flight_number or "-",
+                    ac.origin or "-",
+                    ac.destination or "-",
+                    ac.arrival_time or "-",
+                    ac.airline or "-",
+                    ac.status or "-",
+                ]
+                f.write(",".join(str(v) for v in fields) + "\n")
+        return 0
+
+    except OSError as e:
+        print(f"Error: could not write to '{filename}': {e}")
+        return -1
+        
+def PlotArrivals(aircrafts):
+    if not aircrafts:
+        print("Error: no aircraft data to display.")
+        return
+
+    hours = [ac.arrival_time.hour if hasattr(ac.arrival_time, 'hour') else int(ac.arrival_time) for ac in aircrafts]
+
+    hour_counts = Counter(hours)
+    x = list(range(24))
+    y = [hour_counts.get(h, 0) for h in x]
+
+    fig, ax = plt.subplots(figsize=(12, 5))
+    ax.bar(x, y, color="steelblue", edgecolor="white", width=0.8)
+    ax.set_xlabel("Hour")
+    ax.set_ylabel("Number of landings")
+    ax.set_title("Aircraft landing frequency")
+    ax.set_xticks(x)
+    ax.set_xticklabels([f"{h:02d}:00" for h in x], rotation=45, ha="right")
+    ax.yaxis.get_major_locator().set_params(integer=True)
+    plt.tight_layout()
+    plt.show()
 
 def PlotAirlines(aircrafts):                     # inici part Martí
     if len(aircrafts) == 0:
@@ -212,49 +256,5 @@ def LongDistanceArrivals(aircrafts):
 
     return aircrafts2000                                  # fins aqui arriba part paula
 
-#inici part pablo
 
-def SaveFlights(aircrafts, filename):
-    if not aircrafts:
-        print("Error: aircraft list is empty.")
-        return -1
 
-    try:
-        with open(filename, "w") as f:
-            for ac in aircrafts:
-                fields = [
-                    ac.flight_number or "-",
-                    ac.origin or "-",
-                    ac.destination or "-",
-                    ac.arrival_time or "-",
-                    ac.airline or "-",
-                    ac.status or "-",
-                ]
-                f.write(",".join(str(v) for v in fields) + "\n")
-        return 0
-
-    except OSError as e:
-        print(f"Error: could not write to '{filename}': {e}")
-        return -1
-
-def PlotAirlines(aircrafts):
-    if not aircrafts:
-        print("Error: no aircraft data to display.")
-        return
-
-    hours = [ac.arrival_time.hour if hasattr(ac.arrival_time, 'hour') else int(ac.arrival_time) for ac in aircrafts]
-
-    hour_counts = Counter(hours)
-    x = list(range(24))
-    y = [hour_counts.get(h, 0) for h in x]
-
-    fig, ax = plt.subplots(figsize=(12, 5))
-    ax.bar(x, y, color="steelblue", edgecolor="white", width=0.8)
-    ax.set_xlabel("Hour")
-    ax.set_ylabel("Number of landings")
-    ax.set_title("Aircraft landing frequency")
-    ax.set_xticks(x)
-    ax.set_xticklabels([f"{h:02d}:00" for h in x], rotation=45, ha="right")
-    ax.yaxis.get_major_locator().set_params(integer=True)
-    plt.tight_layout()
-    plt.show()
