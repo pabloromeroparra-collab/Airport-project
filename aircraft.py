@@ -237,7 +237,7 @@ def SaveFlights(aircrafts, filename):
         print(f"Error: could not write to '{filename}': {e}")
         return -1
 
-def PlotArrivals(aircrafts):
+def PlotAirlines(aircrafts):
     if not aircrafts:
         print("Error: no aircraft data to display.")
         return
