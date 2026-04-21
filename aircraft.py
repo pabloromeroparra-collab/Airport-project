@@ -91,25 +91,25 @@ def PlotFlightsType(aircrafts):
         print("Empty aircraft list")
         return
 
-    cont_shengen=[]
-    cont_no_schengen=[]
+    contador_schengen=[]
+    contador_no_schengen=[]
     for aircraft in aircrafts:
         airline= aircraft.company
-        if airline not in cont_shengen:
-            cont_schengen[airline]=0
-            cont_no_schengen[airline]=0
+        if airline not in contador_schengen:
+            contador_schengen[airline]=0
+            contador_no_schengen[airline]=0
 
         if aircraft.origin in schengen:
-            cont_shengen[aircraft.origin]= cont_shengen[aircraft.origin]+1
+            contador_schengen[aircraft.origin]= contador_schengen[aircraft.origin]+1
         else:
-            cont_no_schengen[aircraft.origin]= cont_no_schengen[aircraft.origin]+1
+            contador_no_schengen[aircraft.origin]= contador_no_schengen[aircraft.origin]+1
 
-    airlines = list(schengen_counts.keys())
-    schengen_values = list(schengen_counts.values())
-    non_schengen_values = list(non_schengen_counts.values())
+    airlines = list(contador_schengen.keys())
+    schengen_valores = list(contador_schengen.values())
+    no_schengen_valores = list(contador_no_schengen.values())
 
-    plt.bar(airlines, schengen_values, label="Schengen")
-    plt.bar(airlines, non_schengen_values, bottom=schengen_values, label="Non-Schengen")
+    plt.bar(airlines, schengen_valores, label="Schengen")
+    plt.bar(airlines, no_schengen_valores, bottom=schengen_valores, label="Non-Schengen")
     plt.title("Schengen vs Non-Schengen flights")
     plt.xlabel("Airline")
     plt.ylabel("Number of flights")
