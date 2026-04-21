@@ -3,4 +3,4 @@ Martí Vazquez
 Paula Bautista
 Pablo Romero
 
-y este es nuestra primera versión del proyecto.
+y este es la segunda versión del proyecto.
