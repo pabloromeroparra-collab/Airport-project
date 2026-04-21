@@ -53,8 +53,8 @@ def LoadArrivals(filename):                       # aqui comença part paula
 
                 time_parts = arrival.split(":")
                 hour = int(time_parts[0])
-                minute = int(time_parts[1])
-                arrival_time = hour * 60 + minute
+                sec = int(time_parts[1][0]*60+time_parts[1][1])
+                arrival_time = hour * 3600 + sec
 
                 if last_arrival <= arrival_time:
                     aircraft = Aircrafts(aircraft_code, origin, arrival, airline)
