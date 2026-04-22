@@ -3,6 +3,10 @@ import tkinter as tk
 
 airports = []
 
+# --------------------------------------------------
+# FUNCIONES
+# --------------------------------------------------
+
 def load_airports():
     global airports
     airports = LoadAirports("Airports.txt")
@@ -21,15 +25,17 @@ def show_airports():
         SetSchengen(airports[i])
         airport = airports[i]
 
-        line = airport.ICAO + " | " + "{:.4f}".format(airport.latitude) + " " + "{:.4f}".format(airport.longitude)
-        line += " | Schengen: " + str(airport.Schengen)
+        line = airport.ICAO + " | "
+        line = line + "{:.4f}".format(airport.latitude) + " "
+        line = line + "{:.4f}".format(airport.longitude)
+        line = line + " | Schengen: " + str(airport.Schengen)
 
         output = output + line + "\n"
 
-        label.config(text=output)
-        window.update()
-
         i += 1
+
+    text_box.delete("1.0", tk.END)
+    text_box.insert(tk.END, output)
 
 
 def add_airport():
@@ -48,7 +54,7 @@ def add_airport():
         else:
             label.config(text="Airport already exists")
 
-    except ValueError:
+    except:
         label.config(text="Invalid input")
 
 
@@ -82,8 +88,8 @@ def plot_airports():
         SetSchengen(airports[i])
         i += 1
 
-    PlotAirports(airports)
-    label.config(text="Plot shown")
+    PlotAirportsTk(frame_plot, airports)
+    label.config(text="Plot displayed in window")
 
 
 def map_airports():
@@ -93,14 +99,20 @@ def map_airports():
         i += 1
 
     MapAirports(airports)
-    label.config(text="Map created")
+    label.config(text="Map opened in Google Earth")
 
+
+# --------------------------------------------------
+# VENTANA
+# --------------------------------------------------
 
 window = tk.Tk()
 window.title("Airport Manager")
-window.geometry("500x500")
+window.geometry("700x600")
 
-# inputs
+# --------------------------------------------------
+# INPUTS
+# --------------------------------------------------
 
 tk.Label(window, text="ICAO Code").pack()
 entry_code = tk.Entry(window)
@@ -114,7 +126,9 @@ tk.Label(window, text="Longitude").pack()
 entry_lon = tk.Entry(window)
 entry_lon.pack()
 
-# buttons
+# --------------------------------------------------
+# BOTONES
+# --------------------------------------------------
 
 tk.Button(window, text="Load Airports", command=load_airports).pack()
 tk.Button(window, text="Show Airports", command=show_airports).pack()
@@ -124,8 +138,27 @@ tk.Button(window, text="Save Schengen", command=save_schengen).pack()
 tk.Button(window, text="Plot Airports", command=plot_airports).pack()
 tk.Button(window, text="Map Airports", command=map_airports).pack()
 
-# output label
+# --------------------------------------------------
+# OUTPUT TEXTO (MEJOR QUE LABEL)
+# --------------------------------------------------
+
+text_box = tk.Text(window, height=10, width=80)
+text_box.pack()
+
+# --------------------------------------------------
+# FRAME PARA GRÁFICAS
+# --------------------------------------------------
+
+frame_plot = tk.Frame(window)
+frame_plot.pack()
+
+# --------------------------------------------------
+# MENSAJES
+# --------------------------------------------------
+
 label = tk.Label(window, text="")
 label.pack()
+
+# --------------------------------------------------
 
 window.mainloop()
