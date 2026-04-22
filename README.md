@@ -13,7 +13,7 @@ También se han implementado funcionalidades para guardar los aeropuertos Scheng
 
 Además, se ha desarrollado una interfaz gráfica con tkinter que facilita la interacción del usuario con la aplicación.
 
-VERSIÓN 2:
+VERSIÓN 2: https://youtu.be/nCjwgp9FfuM
 En este vídeo presentamos la Versión 2 del proyecto Airport Management.
 
 En esta versión ampliamos la aplicación incorporando información sobre los vuelos que llegan al aeropuerto de Barcelona (LEBL). Se introduce la clase Aircraft para gestionar datos como el identificador del avión, la aerolínea, el aeropuerto de origen y la hora de llegada.
