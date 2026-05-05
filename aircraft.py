@@ -1,135 +1,249 @@
 import math
 import matplotlib.pyplot as plt
+from airport import *
 
-class Aircraft:                                                         # inici clase
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+
+
+# --------------------------------------------------
+# CLASS
+# --------------------------------------------------
+
+class Aircraft:
     def __init__(self, aircraft_id, company, origin, time_landing):
-        self.aircraft_id = str(aircraft_id)
-
-        if len(company) == 3:
-            self.company = company.upper()
-        else:
-            self.company = "?"
-
-        if len(origin) == 4:
-            self.origin = origin.upper()
-        else:
-            self.origin = "?"
-
-        if len(time_landing) == 5 and time_landing[2] == ":":
-            hh = time_landing[0:2]
-            mm = time_landing[3:5]
-
-            if hh.isdigit() and mm.isdigit():
-                h = int(hh)
-                m = int(mm)
-
-                if 0 <= h <= 23 and 0 <= m <= 59:
-                    self.time_landing = time_landing
-                else:
-                    self.time_landing = "00:00"
-            else:
-                self.time_landing = "00:00"
-        else:
-            self.time_landing = "00:00"
-
-    def __str__(self):
-        return f"{self.aircraft_id} {self.company} {self.origin} {self.time_landing}"      # final clase
+        self.aircraft_id = aircraft_id
+        self.company = company
+        self.origin = origin
+        self.time_landing = time_landing
 
 
-def LoadArrivals(filename):                       # aqui comença part paula
+# --------------------------------------------------
+# LOAD ARRIVALS
+# --------------------------------------------------
+
+def LoadArrivals(filename):
+
     aircrafts = []
 
     try:
-        file = open(filename)
-        line = file.readline()
-        last_arrival = -1
-        while line != "":
-            parts = line.split()
-            if len(parts) >= 4:
-                aircraft_code = parts[0]
-                origin = parts[1]
-                arrival = parts[2]
-                airline = parts[3]
-
-                time_parts = arrival.split(":")
-                hour = int(time_parts[0])
-                sec = int(time_parts[1][0]*60+time_parts[1][1])
-                arrival_time = hour * 3600 + sec
-
-                if last_arrival <= arrival_time:
-                    aircraft = Aircrafts(aircraft_code, origin, arrival, airline)
-                    aircrafts.append(aircraft)
-                    last_arrival = arrival_time
-            line = file.readline()
-        file.close()
-        return aircrafts
-
-    except FileNotFoundError:
+        file = open(filename, "r")
+    except:
         return []
-#inici part pablo
+
+    file.readline()  # skip header
+    line = file.readline()
+
+    while line != "":
+
+        parts = line.split()
+
+        if len(parts) >= 4:
+
+            aircraft_id = parts[0]
+            origin = parts[1]
+            time = parts[2]
+            company = parts[3]
+
+            aircraft = Aircraft(aircraft_id, company, origin, time)
+            aircrafts.append(aircraft)
+
+        line = file.readline()
+
+    file.close()
+    return aircrafts
+
+
+# --------------------------------------------------
+# PLOT ARRIVALS (NORMAL)
+# --------------------------------------------------
+
+def PlotArrivals(aircrafts):
+
+    if len(aircrafts) == 0:
+        print("Empty aircraft list")
+        return
+
+    hours = [0] * 24
+
+    i = 0
+    while i < len(aircrafts):
+
+        time = aircrafts[i].time_landing
+        hour = int(time[0:2])
+
+        hours[hour] += 1
+        i += 1
+
+    x = []
+    i = 0
+    while i < 24:
+        x.append(i)
+        i += 1
+
+    plt.bar(x, hours)
+    plt.xlabel("Hour")
+    plt.ylabel("Flights")
+    plt.title("Arrivals per hour")
+    plt.show()
+
+
+# --------------------------------------------------
+# TKINTER PLOT ARRIVALS
+# --------------------------------------------------
+
+def PlotArrivalsTk(frame, aircrafts):
+
+    if len(aircrafts) == 0:
+        print("Empty aircraft list")
+        return
+
+    hours = [0] * 24
+
+    i = 0
+    while i < len(aircrafts):
+        time = aircrafts[i].time_landing
+        hour = int(time[0:2])
+        hours[hour] += 1
+        i += 1
+
+    # limpiar frame
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+    fig = Figure(figsize=(6,4))
+    ax = fig.add_subplot(111)
+
+    x = []
+    i = 0
+    while i < 24:
+        x.append(i)
+        i += 1
+
+    ax.bar(x, hours)
+    ax.set_title("Arrivals per hour")
+    ax.set_xlabel("Hour")
+    ax.set_ylabel("Flights")
+
+    canvas = FigureCanvasTkAgg(fig, master=frame)
+    canvas.draw()
+    canvas.get_tk_widget().pack()
+
+# --------------------------------------------------
+# SAVE FLIGHTS
+# --------------------------------------------------
 
 def SaveFlights(aircrafts, filename):
-    if not aircrafts:
-        print("Error: aircraft list is empty.")
-        return -1
 
-    try:
-        with open(filename, "w") as f:
-            for ac in aircrafts:
-                fields = [
-                    ac.flight_number or "-",
-                    ac.origin or "-",
-                    ac.destination or "-",
-                    ac.arrival_time or "-",
-                    ac.airline or "-",
-                    ac.status or "-",
-                ]
-                f.write(",".join(str(v) for v in fields) + "\n")
-        return 0
-
-    except OSError as e:
-        print(f"Error: could not write to '{filename}': {e}")
-        return -1
-        
-def PlotArrivals(aircrafts):
-    if not aircrafts:
-        print("Error: no aircraft data to display.")
-        return
-
-    hours = [ac.arrival_time.hour if hasattr(ac.arrival_time, 'hour') else int(ac.arrival_time) for ac in aircrafts]
-
-    hour_counts = Counter(hours)
-    x = list(range(24))
-    y = [hour_counts.get(h, 0) for h in x]
-
-    fig, ax = plt.subplots(figsize=(12, 5))
-    ax.bar(x, y, color="steelblue", edgecolor="white", width=0.8)
-    ax.set_xlabel("Hour")
-    ax.set_ylabel("Number of landings")
-    ax.set_title("Aircraft landing frequency")
-    ax.set_xticks(x)
-    ax.set_xticklabels([f"{h:02d}:00" for h in x], rotation=45, ha="right")
-    ax.yaxis.get_major_locator().set_params(integer=True)
-    plt.tight_layout()
-    plt.show()
-
-def PlotAirlines(aircrafts):                     # inici part Martí
     if len(aircrafts) == 0:
-        print("Error, empty aircraft list")
-        return
-    airlines=[]
-    for aircraft.company in aircrafts:
-        if aircraft in airlines:
-            airlines[aircraft.company]  =  airlines[aircraft.company]+1
-        else:
-            airlines[aircraft.company] = 1
+        return -1
 
-    plt.bar(airlines.keys(), airlines.values())         #grafica
+    file = open(filename, "w")
+
+    i = 0
+    while i < len(aircrafts):
+
+        ac = aircrafts[i]
+        line = ac.aircraft_id + " " + ac.origin + " " + ac.time_landing + " " + ac.company
+
+        file.write(line + "\n")
+        i += 1
+
+    file.close()
+    return 0
+
+# --------------------------------------------------
+# PLOT AIRLINES
+# --------------------------------------------------
+def PlotAirlines(aircrafts):
+
+    if len(aircrafts) == 0:
+        print("Empty aircraft list")
+        return
+
+    airlines = []
+    counts = []
+
+    i = 0
+    while i < len(aircrafts):
+
+        company = aircrafts[i].company
+
+        found = False
+        j = 0
+
+        while j < len(airlines) and not found:
+            if airlines[j] == company:
+                counts[j] += 1
+                found = True
+            j += 1
+
+        if not found:
+            airlines.append(company)
+            counts.append(1)
+
+        i += 1
+
+    plt.bar(airlines, counts)
     plt.title("Flights per airline")
-    plt.xlabel("Airline")
-    plt.ylabel("Number of flights")
     plt.show()
 
+
+# --------------------------------------------------
+# TKINTER PLOT AIRLINES
+# --------------------------------------------------
+
+def PlotAirlinesTk(frame, aircrafts):
+
+    if len(aircrafts) == 0:
+        print("Empty aircraft list")
+        return
+
+    airlines = []
+    counts = []
+
+    i = 0
+    while i < len(aircrafts):
+
+        comp = aircrafts[i].company
+
+        found = False
+        j = 0
+
+        while j < len(airlines) and not found:
+            if airlines[j] == comp:
+                counts[j] += 1
+                found = True
+            j += 1
+
+        if not found:
+            airlines.append(comp)
+            counts.append(1)
+
+        i += 1
+
+    # limpiar frame
+    for widget in frame.winfo_children():
+        widget.destroy()
+
+    fig = Figure(figsize=(6,4))
+    ax = fig.add_subplot(111)
+
+    ax.bar(airlines, counts)
+    ax.set_title("Flights per airline")
+
+    # etiquetas legibles
+    ax.set_xticklabels(airlines, rotation=45, ha="right")
+
+    fig.tight_layout()
+
+    canvas = FigureCanvasTkAgg(fig, master=frame)
+    canvas.draw()
+    canvas.get_tk_widget().pack()
+
+# --------------------------------------------------
+# PLOT FLIGHTS TYPE
+# --------------------------------------------------
 def PlotFlightsType(aircrafts):
     if len(aircrafts)==0:
         print("Empty aircraft list")
@@ -160,9 +274,10 @@ def PlotFlightsType(aircrafts):
     plt.legend()
     plt.show()                                                     # final part Martí
 
-
-
-def MapFlights(aircrafts):                       #part Paula
+# --------------------------------------------------
+# PLOT MAP
+# --------------------------------------------------
+def MapFlights(aircrafts):
     if len(aircrafts) == 0:
         print('Empty aircraft list')
         return
@@ -211,50 +326,67 @@ def MapFlights(aircrafts):                       #part Paula
     file.close()
 
     print("KML file created: flights.kml")
-
+# --------------------------------------------------
+# HAVERSINE
+# --------------------------------------------------
 
 def haversine(lat1, lon1, lat2, lon2):
+
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
-    a = math.sin(dlat / 2) * math.sin(dlat / 2) + \
-        math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * \
-        math.sin(dlon / 2) * math.sin(dlon / 2)
 
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    a = math.sin(dlat/2)**2 + math.cos(math.radians(lat1)) * \
+        math.cos(math.radians(lat2)) * math.sin(dlon/2)**2
 
-    distance = 6371 * c
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
 
-    return distance
+    return 6371 * c
 
 
-def LongDistanceArrivals(aircrafts):
-    aircrafts2000 = []
-    if len(aircrafts) == 0:
-        print("Empty aircraft list")
-        return []
+# --------------------------------------------------
+# LONG DISTANCE
+# --------------------------------------------------
+
+def LongDistanceArrivals(aircrafts, airports):
+
+    result = []
 
     i = 0
     while i < len(aircrafts):
 
-        aircraft = aircrafts[i]
+        ac = aircrafts[i]
 
-        coords_origin = Airport_coords[aircraft.origin]
-        coords_dest = Airport_coords["LEBL"]
+        origin_coords = None
+        j = 0
+        found=False
+        while j < len(airports) and not found:
+            if airports[j].ICAO == ac.origin:
+                origin_coords = airports[j].ICAO
+                found= True
+            j += 1
 
-        lat1 = coords_origin[0]
-        lon1 = coords_origin[1]
+        if origin_coords != None:
 
-        lat2 = coords_dest[0]
-        lon2 = coords_dest[1]
+            distance = haversine(origin_coords.latitude,
+                                 origin_coords.longitude,
+                                 41.2974, 2.0833)
 
-        distance = haversine(lat1, lon1, lat2, lon2)
+            if distance > 2000:
+                result.append(ac)
 
-        if distance > 2000:
-            aircrafts2000.append(aircraft)
+        i += 1
 
-        i = i + 1
+    return result
 
-    return aircrafts2000                                  # fins aqui arriba part paula
+# --------------------------------------------------
+# TEST SECTION
+# --------------------------------------------------
 
+if __name__ == "__main__":
 
+    aircrafts = LoadArrivals("Arrivals.txt")
 
+    print("Loaded:", len(aircrafts), "aircraft")
+
+    PlotArrivals(aircrafts)
+    PlotAirlines(aircrafts)
