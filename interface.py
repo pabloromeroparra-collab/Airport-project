@@ -1,10 +1,18 @@
 import tkinter as tk
+<<<<<<< HEAD
 from LEBL import *
+=======
+from airport import *
+from aircraft import *
+>>>>>>> d2d42b882792b520f895989799dc6fdedc700ec6
 
 # ---------------- VARIABLES ----------------
 
 airports = []
+<<<<<<< HEAD
 bcn = None
+=======
+>>>>>>> d2d42b882792b520f895989799dc6fdedc700ec6
 aircrafts = []
 
 # ---------------- FUNCTIONS AIRPORTS ----------------
@@ -24,7 +32,11 @@ def load_airports():
 
     global airports
 
+<<<<<<< HEAD
     airports = LoadAirports("DATA/Airports.txt")
+=======
+    airports = LoadAirports("Airports.txt")
+>>>>>>> d2d42b882792b520f895989799dc6fdedc700ec6
 
     text_box.delete("1.0", tk.END)
 
@@ -129,6 +141,27 @@ def remove_airport():
 
 
 def save_schengen():
+<<<<<<< HEAD
+=======
+
+    """
+    Saves Schengen airports into a text file.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
+
+    i = 0
+
+    while i < len(airports):
+
+        SetSchengen(airports[i])
+
+        i = i + 1
+>>>>>>> d2d42b882792b520f895989799dc6fdedc700ec6
 
     """
     Saves Schengen airports into a text file.
@@ -211,6 +244,7 @@ def map_airports():
     while i < len(airports):
 
         SetSchengen(airports[i])
+<<<<<<< HEAD
 
         i = i + 1
 
@@ -349,6 +383,144 @@ def save_flights():
 # --------------------------------------------------
 # BUILD AIRPORT
 # --------------------------------------------------
+=======
+
+        i = i + 1
+
+    MapAirports(airports)
+
+    label.config(text="Map opened (check Google Earth)")
+
+
+# ---------------- FUNCTIONS AIRCRAFTS ----------------
+
+def load_arrivals():
+
+    """
+    Loads aircraft arrivals from Arrivals.txt.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
+
+    global aircrafts
+
+    aircrafts = LoadArrivals("Arrivals.txt")
+
+    text_box.delete("1.0", tk.END)
+
+    label.config(text="Loaded " + str(len(aircrafts)) + " arrivals")
+
+
+def show_aircrafts():
+
+    """
+    Shows aircraft information in the text box.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
+
+    text_box.delete("1.0", tk.END)
+
+    i = 0
+
+    while i < len(aircrafts):
+
+        ac = aircrafts[i]
+
+        line = ac.aircraft_id + " | "
+
+        line += ac.company + " | "
+
+        line += ac.origin + " | "
+
+        line += ac.time_landing
+
+        text_box.insert(tk.END, line + "\n")
+
+        i = i + 1
+
+
+def plot_arrivals():
+
+    """
+    Creates a plot with aircraft arrivals.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
+
+    if len(aircrafts) == 0:
+
+        label.config(text="Load arrivals first")
+
+        return
+
+    PlotArrivalsTk(frame_plot, aircrafts)
+
+
+def plot_airlines():
+
+    """
+    Creates a plot with airlines information.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
+
+    if len(aircrafts) == 0:
+
+        label.config(text="Load arrivals first")
+
+        return
+
+    PlotAirlinesTk(frame_plot, aircrafts)
+
+
+def save_flights():
+
+    """
+    Saves flights into a text file.
+
+    Parameters:
+        None
+
+    Returns:
+        None
+    """
+
+    if len(aircrafts) == 0:
+
+        label.config(text="Load arrivals first")
+
+        return
+
+    result = SaveFlights(aircrafts, "flights.txt")
+
+    if result == 0:
+
+        label.config(text="Flights saved")
+
+    else:
+
+        label.config(text="Error saving flights")
+
+
+# ---------------- WINDOW ----------------
+>>>>>>> d2d42b882792b520f895989799dc6fdedc700ec6
 
 def build_airport():
 
@@ -633,6 +805,7 @@ def show_long_distance():
 
 window = tk.Tk()
 
+<<<<<<< HEAD
 window_color = "#F0F0F0"
 
 window.configure(bg=window_color)
@@ -736,6 +909,88 @@ tk.Button(
     command=remove_airport
 ).pack(fill="x", pady=2)
 
+=======
+window.title("Airport and Aircraft Manager")
+
+window.geometry("1100x700")
+
+# ---------------- TOP OUTPUT ----------------
+
+frame_top = tk.Frame(window)
+
+frame_top.pack()
+
+text_box = tk.Text(frame_top, height=12, width=130)
+
+text_box.pack()
+
+# ---------------- CENTRAL AREA ----------------
+
+frame_middle = tk.Frame(window)
+
+frame_middle.pack()
+
+frame_left = tk.Frame(frame_middle)
+
+frame_left.grid(row=0, column=0, padx=10)
+
+frame_center = tk.Frame(frame_middle)
+
+frame_center.grid(row=0, column=1, padx=10)
+
+frame_plot = tk.Frame(frame_middle)
+
+frame_plot.grid(row=0, column=2, padx=10)
+
+# ---------------- INPUTS ----------------
+
+tk.Label(frame_left, text="ICAO Code").pack()
+
+entry_code = tk.Entry(frame_left)
+
+entry_code.pack()
+
+tk.Label(frame_left, text="Latitude").pack()
+
+entry_lat = tk.Entry(frame_left)
+
+entry_lat.pack()
+
+tk.Label(frame_left, text="Longitude").pack()
+
+entry_lon = tk.Entry(frame_left)
+
+entry_lon.pack()
+
+# ---------------- AIRPORTS ----------------
+
+tk.Label(frame_left, text="--- AIRPORTS ---").pack(pady=5)
+
+tk.Button(
+    frame_left,
+    text="Load Airports",
+    command=load_airports
+).pack(fill="x", pady=2)
+
+tk.Button(
+    frame_left,
+    text="Show Airports",
+    command=show_airports
+).pack(fill="x", pady=2)
+
+tk.Button(
+    frame_left,
+    text="Add Airport",
+    command=add_airport
+).pack(fill="x", pady=2)
+
+tk.Button(
+    frame_left,
+    text="Remove Airport",
+    command=remove_airport
+).pack(fill="x", pady=2)
+
+>>>>>>> d2d42b882792b520f895989799dc6fdedc700ec6
 tk.Button(
     frame_left,
     text="Save Schengen",
@@ -788,6 +1043,7 @@ tk.Button(
     command=save_flights
 ).pack(fill="x", pady=2)
 
+<<<<<<< HEAD
 tk.Button(
     frame_center,
     text="Build Airport",
@@ -848,13 +1104,22 @@ tk.Button(
     command=show_long_distance
 ).pack(fill="x", pady=2)
 
+=======
+>>>>>>> d2d42b882792b520f895989799dc6fdedc700ec6
 # ---------------- STATUS ----------------
 
 label = tk.Label(window, text="")
 
 label.pack(pady=10)
+<<<<<<< HEAD
 
 # ---------------- START ----------------
 
 window.mainloop()
 
+=======
+
+# ---------------- START ----------------
+
+window.mainloop()
+>>>>>>> d2d42b882792b520f895989799dc6fdedc700ec6
