@@ -3,4 +3,4 @@ Martí Vazquez
 Paula Bautista
 Pablo Romero
 
-y este es la segunda versión del proyecto.
+Los documentos del proyecto y los códigos se encuentran en el domain "Master" 
