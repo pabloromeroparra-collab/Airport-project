@@ -1,6 +1,6 @@
-import math
 import matplotlib.pyplot as plt
-from airport import *
+import os
+import sys
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
@@ -10,37 +10,133 @@ from matplotlib.figure import Figure
 # CLASS
 # --------------------------------------------------
 
-class Aircraft:
+class Airport:
 
     """
-    Aircraft class.
+    Airport class.
 
     Parameters:
-        aircraft_id (str)
-        company (str)
-        origin (str)
-        time_landing (str)
+        ICAO (str)
+        latitude (float)
+        longitude (float)
 
     Returns:
-        Aircraft object
+        Airport object
     """
 
-    def __init__(self, aircraft_id, company, origin, time_landing):
+    def __init__(self, ICAO, latitude, longitude):
 
-        self.aircraft_id = aircraft_id
-        self.company = company
-        self.origin = origin
-        self.time_landing = time_landing
+        self.ICAO = ICAO
+
+        self.latitude = float(latitude)
+
+        self.longitude = float(longitude)
+
+        self.Schengen = False
 
 
 # --------------------------------------------------
-# LOAD ARRIVALS
+# SCHENGEN
 # --------------------------------------------------
 
-def LoadArrivals(filename):
+def IsSchengenAirport(code):
 
     """
-    Loads aircraft arrivals from a text file.
+    Checks if an airport belongs
+    to the Schengen area.
+
+    Parameters:
+        code (str)
+
+    Returns:
+        bool
+    """
+
+    if code == "":
+
+        return False
+
+    prefix = code[0:2]
+
+    array = [
+        'LO', 'EB', 'LK', 'LC', 'EK', 'EE',
+        'EF', 'LF', 'ED', 'LG', 'EH', 'LH',
+        'BI', 'LI', 'EV', 'EY', 'EL', 'LM',
+        'EN', 'EP', 'LP', 'LZ', 'LJ', 'LE',
+        'ES', 'LS'
+    ]
+
+    found = False
+
+    i = 0
+
+    while i < len(array) and found == False:
+
+        if prefix == array[i]:
+
+            found = True
+
+        else:
+
+            i = i + 1
+
+    return found
+
+
+def SetSchengen(airport):
+
+    """
+    Sets the Schengen attribute
+    of an airport.
+
+    Parameters:
+        airport (Airport)
+
+    Returns:
+        bool
+    """
+
+    airport.Schengen = IsSchengenAirport(airport.ICAO)
+
+    return airport.Schengen
+
+
+# --------------------------------------------------
+# PRINT
+# --------------------------------------------------
+
+def PrintAirport(airport):
+
+    """
+    Prints airport information.
+
+    Parameters:
+        airport (Airport)
+
+    Returns:
+        None
+    """
+
+    print("Code:", airport.ICAO)
+
+    print(
+        "Coordinates:",
+        airport.latitude,
+        ",",
+        airport.longitude
+    )
+
+    print("Schengen:", airport.Schengen)
+
+
+# --------------------------------------------------
+# LOAD AIRPORTS
+# --------------------------------------------------
+
+def LoadAirports(filename):
+
+    """
+    Loads airports from a text file.
 
     Parameters:
         filename (str)
@@ -49,7 +145,7 @@ def LoadArrivals(filename):
         list
     """
 
-    aircrafts = []
+    airports = []
 
     try:
 
@@ -59,7 +155,7 @@ def LoadArrivals(filename):
 
         return []
 
-    file.readline()
+    line = file.readline()
 
     line = file.readline()
 
@@ -67,364 +163,402 @@ def LoadArrivals(filename):
 
         parts = line.split()
 
-        if len(parts) >= 4:
+        if len(parts) >= 3:
 
-            aircraft_id = parts[0]
+            code = parts[0]
 
-            origin = parts[1]
+            # LATITUDE
 
-            time = parts[2]
+            coord_sign = parts[1][0]
 
-            company = parts[3]
+            coord = parts[1][1:]
 
-            aircraft = Aircraft(
-                aircraft_id,
-                company,
-                origin,
-                time
+            deg = int(coord[0:2])
+
+            min_ = int(coord[2:4])
+
+            sec = int(coord[4:6])
+
+            latitude = deg + min_ / 60 + sec / 3600
+
+            if coord_sign == 'S':
+
+                latitude = -latitude
+
+            # LONGITUDE
+
+            coord_sign = parts[2][0]
+
+            coord = parts[2][1:]
+
+            deg = int(coord[0:3])
+
+            min_ = int(coord[3:5])
+
+            sec = int(coord[5:7])
+
+            longitude = deg + min_ / 60 + sec / 3600
+
+            if coord_sign == 'W':
+
+                longitude = -longitude
+
+            airport = Airport(
+                code,
+                latitude,
+                longitude
             )
 
-            aircrafts.append(aircraft)
+            airports.append(airport)
 
         line = file.readline()
 
     file.close()
 
-    return aircrafts
+    return airports
 
 
 # --------------------------------------------------
-# PLOT ARRIVALS
+# SAVE SCHENGEN
 # --------------------------------------------------
 
-def PlotArrivals(aircrafts):
+def SaveSchengenAirports(airports, filename):
 
     """
-    Creates a plot of arrivals per hour.
+    Saves Schengen airports into a file.
 
     Parameters:
-        aircrafts (list)
-
-    Returns:
-        None
-    """
-
-    if len(aircrafts) == 0:
-
-        print("Empty aircraft list")
-
-        return
-
-    hours = [0] * 24
-
-    i = 0
-
-    while i < len(aircrafts):
-
-        time = aircrafts[i].time_landing
-
-        hour = int(time[0:2])
-
-        hours[hour] += 1
-
-        i += 1
-
-    x = []
-
-    i = 0
-
-    while i < 24:
-
-        x.append(i)
-
-        i += 1
-
-    plt.bar(x, hours)
-
-    plt.xlabel("Hour")
-
-    plt.ylabel("Flights")
-
-    plt.title("Arrivals per hour")
-
-    plt.show()
-
-
-# --------------------------------------------------
-# TKINTER PLOT ARRIVALS
-# --------------------------------------------------
-
-def PlotArrivalsTk(frame, aircrafts):
-
-    """
-    Creates a Tkinter plot of arrivals per hour.
-
-    Parameters:
-        frame
-        aircrafts (list)
-
-    Returns:
-        None
-    """
-
-    if len(aircrafts) == 0:
-
-        print("Empty aircraft list")
-
-        return
-
-    hours = [0] * 24
-
-    i = 0
-
-    while i < len(aircrafts):
-
-        time = aircrafts[i].time_landing
-
-        hour = int(time[0:2])
-
-        hours[hour] += 1
-
-        i += 1
-
-    i = 0
-
-    while i < len(frame.winfo_children()):
-
-        frame.winfo_children()[i].destroy()
-
-        i += 1
-
-    fig = Figure(figsize=(6, 4))
-
-    ax = fig.add_subplot(111)
-
-    x = []
-
-    i = 0
-
-    while i < 24:
-
-        x.append(i)
-
-        i += 1
-
-    ax.bar(x, hours)
-
-    ax.set_title("Arrivals per hour")
-
-    ax.set_xlabel("Hour")
-
-    ax.set_ylabel("Flights")
-
-    canvas = FigureCanvasTkAgg(fig, master=frame)
-
-    canvas.draw()
-
-    canvas.get_tk_widget().pack()
-
-
-# --------------------------------------------------
-# SAVE FLIGHTS
-# --------------------------------------------------
-
-def SaveFlights(aircrafts, filename):
-
-    """
-    Saves flights into a text file.
-
-    Parameters:
-        aircrafts (list)
+        airports (list)
         filename (str)
 
     Returns:
         int
     """
 
-    if len(aircrafts) == 0:
+    if len(airports) == 0:
 
         return -1
 
     file = open(filename, "w")
 
+    file.write("CODE LAT LON\n")
+
     i = 0
 
-    while i < len(aircrafts):
+    written = False
 
-        ac = aircrafts[i]
+    while i < len(airports):
 
-        line = ac.aircraft_id + " "
+        if airports[i].Schengen:
 
-        line += ac.origin + " "
+            latitude = airports[i].latitude
 
-        line += ac.time_landing + " "
+            longitude = airports[i].longitude
 
-        line += ac.company
+            # LATITUDE
 
-        file.write(line + "\n")
+            if latitude >= 0:
 
-        i += 1
+                lat_dir = "N"
+
+            else:
+
+                lat_dir = "S"
+
+                latitude = -latitude
+
+            lat_deg = int(latitude)
+
+            lat_min = int((latitude - lat_deg) * 60)
+
+            lat_sec = int(
+                (
+                    ((latitude - lat_deg) * 60)
+                    - lat_min
+                ) * 60
+            )
+
+            lat_text = (
+                lat_dir
+                + str(lat_deg).zfill(2)
+                + str(lat_min).zfill(2)
+                + str(lat_sec).zfill(2)
+            )
+
+            # LONGITUDE
+
+            if longitude >= 0:
+
+                lon_dir = "E"
+
+            else:
+
+                lon_dir = "W"
+
+                longitude = -longitude
+
+            lon_deg = int(longitude)
+
+            lon_min = int((longitude - lon_deg) * 60)
+
+            lon_sec = int(
+                (
+                    ((longitude - lon_deg) * 60)
+                    - lon_min
+                ) * 60
+            )
+
+            lon_text = (
+                lon_dir
+                + str(lon_deg).zfill(3)
+                + str(lon_min).zfill(2)
+                + str(lon_sec).zfill(2)
+            )
+
+            file.write(
+                airports[i].ICAO
+                + " "
+                + lat_text
+                + " "
+                + lon_text
+                + "\n"
+            )
+
+            written = True
+
+        i = i + 1
 
     file.close()
 
-    return 0
+    if written:
+
+        return 0
+
+    else:
+
+        return -1
 
 
 # --------------------------------------------------
-# PLOT AIRLINES
+# ADD / REMOVE
 # --------------------------------------------------
 
-def PlotAirlines(aircrafts):
+def AddAirport(airports, airport):
 
     """
-    Creates a plot with flights per airline.
+    Adds an airport to the list.
 
     Parameters:
-        aircrafts (list)
+        airports (list)
+        airport (Airport)
+
+    Returns:
+        int
+    """
+
+    i = 0
+
+    found = False
+
+    while i < len(airports) and found == False:
+
+        if airports[i].ICAO == airport.ICAO:
+
+            found = True
+
+        else:
+
+            i = i + 1
+
+    if found == False:
+
+        airports.append(airport)
+
+        return 0
+
+    else:
+
+        return -1
+
+
+def RemoveAirport(airports, code):
+
+    """
+    Removes an airport from the list.
+
+    Parameters:
+        airports (list)
+        code (str)
+
+    Returns:
+        int
+    """
+
+    i = 0
+
+    found = False
+
+    while i < len(airports) and found == False:
+
+        if airports[i].ICAO == code:
+
+            found = True
+
+        else:
+
+            i = i + 1
+
+    if found:
+
+        airports[i:i + 1] = []
+
+        return 0
+
+    else:
+
+        return -1
+
+
+# --------------------------------------------------
+# PLOT AIRPORTS
+# --------------------------------------------------
+
+def PlotAirports(airports):
+
+    """
+    Creates a plot with Schengen
+    and Non-Schengen airports.
+
+    Parameters:
+        airports (list)
 
     Returns:
         None
     """
 
-    if len(aircrafts) == 0:
+    contador_schengen = 0
 
-        print("Empty aircraft list")
-
-        return
-
-    airlines = []
-
-    counts = []
+    contador_no_schengen = 0
 
     i = 0
 
-    while i < len(aircrafts):
+    while i < len(airports):
 
-        company = aircrafts[i].company
+        if airports[i].Schengen:
 
-        found = False
+            contador_schengen = (
+                contador_schengen + 1
+            )
 
-        j = 0
+        else:
 
-        while j < len(airlines) and not found:
+            contador_no_schengen = (
+                contador_no_schengen + 1
+            )
 
-            if airlines[j] == company:
+        i = i + 1
 
-                counts[j] += 1
+    fig, ax = plt.subplots()
 
-                found = True
+    ax.bar(
+        "Airports",
+        contador_schengen,
+        label="Schengen"
+    )
 
-            j += 1
+    ax.bar(
+        "Airports",
+        contador_no_schengen,
+        bottom=contador_schengen,
+        label="No Schengen"
+    )
 
-        if not found:
+    ax.set_ylabel("Count")
 
-            airlines.append(company)
+    ax.set_title("Schengen Airports")
 
-            counts.append(1)
-
-        i += 1
-
-    plt.figure(figsize=(12, 6))
-
-    plt.bar(airlines, counts)
-
-    plt.title("Flights per airline")
-
-    plt.xlabel("Airlines")
-
-    plt.ylabel("Flights")
-
-    plt.xticks(rotation=90, fontsize=6)
-
-    plt.tight_layout()
+    ax.legend()
 
     plt.show()
 
 
 # --------------------------------------------------
-# TKINTER PLOT AIRLINES
+# PLOT AIRPORTS TKINTER
 # --------------------------------------------------
 
-def PlotAirlinesTk(frame, aircrafts):
+def PlotAirportsTk(frame, airports):
 
     """
-    Creates a Tkinter plot with flights per airline.
+    Creates a Tkinter plot with
+    Schengen and Non-Schengen airports.
 
     Parameters:
         frame
-        aircrafts (list)
+        airports (list)
 
     Returns:
         None
     """
 
-    if len(aircrafts) == 0:
+    contador_schengen = 0
 
-        print("Empty aircraft list")
-
-        return
-
-    airlines = []
-
-    counts = []
+    contador_no_schengen = 0
 
     i = 0
 
-    while i < len(aircrafts):
+    while i < len(airports):
 
-        comp = aircrafts[i].company
+        if airports[i].Schengen:
 
-        found = False
+            contador_schengen = (
+                contador_schengen + 1
+            )
 
-        j = 0
+        else:
 
-        while j < len(airlines) and not found:
+            contador_no_schengen = (
+                contador_no_schengen + 1
+            )
 
-            if airlines[j] == comp:
+        i = i + 1
 
-                counts[j] += 1
-
-                found = True
-
-            j += 1
-
-        if not found:
-
-            airlines.append(comp)
-
-            counts.append(1)
-
-        i += 1
+    widgets = frame.winfo_children()
 
     i = 0
 
-    while i < len(frame.winfo_children()):
+    while i < len(widgets):
 
-        frame.winfo_children()[i].destroy()
+        widgets[i].destroy()
 
-        i += 1
+        i = i + 1
 
-    fig = Figure(figsize=(12, 6))
+    fig = Figure(figsize=(5, 4))
 
     ax = fig.add_subplot(111)
 
-    ax.bar(airlines, counts)
-
-    ax.set_title("Flights per airline")
-
-    ax.set_xlabel("Airlines")
-
-    ax.set_ylabel("Flights")
-
-    ax.set_xticklabels(
-        airlines,
-        rotation=90,
-        fontsize=6
+    ax.bar(
+        ["Airports"],
+        [contador_schengen],
+        label="Schengen"
     )
 
-    fig.tight_layout()
+    ax.bar(
+        ["Airports"],
+        [contador_no_schengen],
+        bottom=[contador_schengen],
+        label="No Schengen"
+    )
 
-    canvas = FigureCanvasTkAgg(fig, master=frame)
+    ax.set_ylabel("Count")
+
+    ax.set_title("Schengen Airports")
+
+    ax.legend()
+
+    canvas = FigureCanvasTkAgg(
+        fig,
+        master=frame
+    )
 
     canvas.draw()
 
@@ -432,313 +566,125 @@ def PlotAirlinesTk(frame, aircrafts):
 
 
 # --------------------------------------------------
-# PLOT FLIGHTS TYPE
+# OPEN FILE
 # --------------------------------------------------
 
-def PlotFlightsType(aircrafts):
+def open_file(filename):
 
     """
-    Creates a plot comparing Schengen
-    and Non-Schengen flights.
+    Opens a file with the default application.
 
     Parameters:
-        aircrafts (list)
+        filename (str)
 
     Returns:
         None
     """
 
-    if len(aircrafts) == 0:
+    if sys.platform == "win32":
 
-        print("Empty aircraft list")
+        os.startfile(filename)
 
-        return
+    else:
 
-    airlines = []
-
-    schengen_counts = []
-
-    non_schengen_counts = []
-
-    i = 0
-
-    while i < len(aircrafts):
-
-        aircraft = aircrafts[i]
-
-        airline = aircraft.company
-
-        found = False
-
-        j = 0
-
-        while j < len(airlines) and not found:
-
-            if airlines[j] == airline:
-
-                if aircraft.origin in schengen:
-
-                    schengen_counts[j] += 1
-
-                else:
-
-                    non_schengen_counts[j] += 1
-
-                found = True
-
-            j += 1
-
-        if not found:
-
-            airlines.append(airline)
-
-            if aircraft.origin in schengen:
-
-                schengen_counts.append(1)
-
-                non_schengen_counts.append(0)
-
-            else:
-
-                schengen_counts.append(0)
-
-                non_schengen_counts.append(1)
-
-        i += 1
-
-    plt.figure(figsize=(12, 6))
-
-    plt.bar(
-        airlines,
-        schengen_counts,
-        label="Schengen"
-    )
-
-    plt.bar(
-        airlines,
-        non_schengen_counts,
-        bottom=schengen_counts,
-        label="Non-Schengen"
-    )
-
-    plt.title("Schengen vs Non-Schengen flights")
-
-    plt.xlabel("Airline")
-
-    plt.ylabel("Number of flights")
-
-    plt.xticks(rotation=90, fontsize=6)
-
-    plt.legend()
-
-    plt.tight_layout()
-
-    plt.show()
+        os.system("xdg-open " + filename)
 
 
 # --------------------------------------------------
-# PLOT MAP
+# MAP AIRPORTS
 # --------------------------------------------------
 
-def MapFlights(aircrafts):
+def MapAirports(airports):
 
     """
-    Creates a KML file with flight routes.
+    Creates a KML map with airports.
 
     Parameters:
-        aircrafts (list)
-
-    Returns:
-        None
-    """
-
-    if len(aircrafts) == 0:
-
-        print("Empty aircraft list")
-
-        return
-
-    file = open("flights.kml", "w")
-
-    file.write("<?xml version='1.0' encoding='UTF-8'?>\n")
-
-    file.write("<kml xmlns='http://www.opengis.net/kml/2.2'>\n")
-
-    file.write("<Document>\n")
-
-    i = 0
-
-    while i < len(aircrafts):
-
-        aircraft = aircrafts[i]
-
-        if aircraft.origin in Airport_coords:
-
-            coords_origin = Airport_coords[aircraft.origin]
-
-            coords_dest = Airport_coords["LEBL"]
-
-            lat1 = coords_origin[0]
-
-            lon1 = coords_origin[1]
-
-            lat2 = coords_dest[0]
-
-            lon2 = coords_dest[1]
-
-            if aircraft.origin in schengen:
-
-                color = "ff0000ff"
-
-            else:
-
-                color = "ff00ff00"
-
-            file.write("<Placemark>\n")
-
-            file.write("<Style>\n")
-
-            file.write("<LineStyle>\n")
-
-            file.write("<color>" + color + "</color>\n")
-
-            file.write("</LineStyle>\n")
-
-            file.write("</Style>\n")
-
-            file.write("<LineString>\n")
-
-            file.write("<coordinates>\n")
-
-            file.write(str(lon1) + "," + str(lat1) + ",0 ")
-
-            file.write(str(lon2) + "," + str(lat2) + ",0\n")
-
-            file.write("</coordinates>\n")
-
-            file.write("</LineString>\n")
-
-            file.write("</Placemark>\n")
-
-        i += 1
-
-    file.write("</Document>\n")
-
-    file.write("</kml>\n")
-
-    file.close()
-
-    print("KML file created: flights.kml")
-
-
-# --------------------------------------------------
-# HAVERSINE
-# --------------------------------------------------
-
-def haversine(lat1, lon1, lat2, lon2):
-
-    """
-    Calculates distance between two coordinates.
-
-    Parameters:
-        lat1 (float)
-        lon1 (float)
-        lat2 (float)
-        lon2 (float)
-
-    Returns:
-        float
-    """
-
-    dlat = math.radians(lat2 - lat1)
-
-    dlon = math.radians(lon2 - lon1)
-
-    a = math.sin(dlat / 2) ** 2
-
-    a += math.cos(math.radians(lat1))
-
-    a *= math.cos(math.radians(lat2))
-
-    a *= math.sin(dlon / 2) ** 2
-
-    c = 2 * math.atan2(
-        math.sqrt(a),
-        math.sqrt(1 - a)
-    )
-
-    return 6371 * c
-
-
-# --------------------------------------------------
-# LONG DISTANCE
-# --------------------------------------------------
-
-def LongDistanceArrivals(aircrafts, airports):
-
-    """
-    Returns aircrafts with flights longer than 2000 km.
-
-    Parameters:
-        aircrafts (list)
         airports (list)
 
     Returns:
-        list
+        None
     """
 
-    result = []
+    filename = "airports.kml"
+
+    file = open(filename, "w")
+
+    file.write(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+    )
+
+    file.write(
+        '<kml xmlns="http://www.opengis.net/kml/2.2">\n'
+    )
+
+    file.write('<Document>\n')
+
+    file.write('<Style id="schengen">\n')
+
+    file.write(
+        '<IconStyle><color>ff00ff00</color></IconStyle>\n'
+    )
+
+    file.write('</Style>\n')
+
+    file.write('<Style id="noschengen">\n')
+
+    file.write(
+        '<IconStyle><color>ff0000ff</color></IconStyle>\n'
+    )
+
+    file.write('</Style>\n')
 
     i = 0
 
-    while i < len(aircrafts):
+    while i < len(airports):
 
-        ac = aircrafts[i]
+        if airports[i].Schengen:
 
-        origin_airport = None
+            style = "#schengen"
 
-        j = 0
+        else:
 
-        found = False
+            style = "#noschengen"
 
-        while j < len(airports) and not found:
+        file.write('<Placemark>\n')
 
-            if airports[j].ICAO == ac.origin:
+        file.write(
+            '<name>'
+            + airports[i].ICAO
+            + '</name>\n'
+        )
 
-                origin_airport = airports[j]
+        file.write(
+            '<styleUrl>'
+            + style
+            + '</styleUrl>\n'
+        )
 
-                found = True
+        file.write('<Point>\n')
 
-            j += 1
+        file.write('<coordinates>\n')
 
-        if origin_airport != None:
+        file.write(
+            str(airports[i].longitude)
+            + ","
+            + str(airports[i].latitude)
+            + "\n"
+        )
 
-            distance = haversine(
-                origin_airport.latitude,
-                origin_airport.longitude,
-                41.2974,
-                2.0833
-            )
+        file.write('</coordinates>\n')
 
-            if distance > 2000:
+        file.write('</Point>\n')
 
-                result.append(ac)
+        file.write('</Placemark>\n')
 
-        i += 1
+        i = i + 1
 
-    return result
+    file.write('</Document>\n')
 
+    file.write('</kml>\n')
 
-# --------------------------------------------------
-# TEST SECTION
-# --------------------------------------------------
+    file.close()
 
-if __name__ == "__main__":
-
-    aircrafts = LoadArrivals("Arrivals.txt")
-
-    print("Loaded:", len(aircrafts), "aircraft")
-
-    PlotArrivals(aircrafts)
-
-    PlotAirlines(aircrafts)
+    open_file(filename)
