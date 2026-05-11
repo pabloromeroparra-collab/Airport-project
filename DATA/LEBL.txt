@@ -1,0 +1,5 @@
+LEBL 2 terminals
+
+Terminal T1 5 boarding areas
+Area A Schengen Gates 1 - 11
+Area B Schengen Gates 1 - 57
