@@ -158,6 +158,31 @@ def save_schengen():
 
         label.config(text="Error saving")
 
+def export_kml():
+
+    if len(airports) == 0:
+
+        label.config(text="Load airports first")
+
+        return
+
+    i = 0
+
+    while i < len(airports):
+
+        SetSchengen(airports[i])
+
+        i = i + 1
+
+    result = ExportKML(airports, "OUTPUTS/airports.kml")
+
+    if result == 0:
+
+        label.config(text="KML exported to OUTPUTS/airports.kml")
+
+    else:
+
+        label.config(text="Error exporting KML")
 
 def plot_airports():
 
@@ -191,7 +216,7 @@ def plot_airports():
 def map_airports():
 
     """
-    Opens airports in Google Earth.
+    Exports airports to KML and opens in Google Earth.
 
     Parameters:
         None
@@ -199,6 +224,8 @@ def map_airports():
     Returns:
         None
     """
+
+    import os
 
     if len(airports) == 0:
 
@@ -214,11 +241,17 @@ def map_airports():
 
         i = i + 1
 
-    MapAirportsTk(frame_plot,airports)
+    result = ExportKML(airports, "OUTPUTS/airports.kml")
 
-    label.config(
-        text="Airport map displayed"
-    )
+    if result == 0:
+
+        os.startfile(os.path.abspath("OUTPUTS/airports.kml"))
+
+        label.config(text="Opened in Google Earth")
+
+    else:
+
+        label.config(text="Error exporting KML")
 # ---------------- FUNCTIONS AIRCRAFTS ----------------
 
 def load_arrivals():
@@ -544,6 +577,8 @@ def plot_gate_distribution():
 
 def map_flights():
 
+    import os
+
     if len(aircrafts) == 0:
 
         label.config(
@@ -560,15 +595,25 @@ def map_flights():
 
         return
 
-    MapFlightsTk(
-        frame_plot,
+    result = ExportFlightsKML(
         aircrafts,
-        airports
+        airports,
+        "OUTPUTS/flights.kml"
     )
 
-    label.config(
-        text="Flights map opened"
-    )
+    if result == 0:
+
+        os.startfile(os.path.abspath("OUTPUTS/flights.kml"))
+
+        label.config(
+            text="Flights opened in Google Earth"
+        )
+
+    else:
+
+        label.config(
+            text="Error exporting flights KML"
+        )
 
 def plot_flights_type():
 

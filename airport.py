@@ -587,24 +587,24 @@ def AirportCoords(airports):
 
     return coords
 
-def MapAirportsTk(frame, airports):
+# --------------------------------------------------
+# EXPORT KML
+# --------------------------------------------------
 
-    widgets = frame.winfo_children()
+def ExportKML(airports, filename):
+    if len(airports) == 0:
 
-    i = 0
+        return -1
+    import os
 
-    while i < len(widgets):
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
 
-        widgets[i].destroy()
+    file = open(filename, "w")
 
-        i = i + 1
-
-    fig = Figure(figsize=(10, 5))
-
-    ax = fig.add_subplot(111)
-    ax.set_facecolor("lightblue")
-
-    fig.patch.set_facecolor("white")
+    file.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+    file.write('<kml xmlns="http://www.opengis.net/kml/2.2">\n')
+    file.write('<Document>\n')
+    file.write('<name>Airports</name>\n')
 
     i = 0
 
@@ -612,51 +612,120 @@ def MapAirportsTk(frame, airports):
 
         airport = airports[i]
 
-        x = airport.longitude
-
-        y = airport.latitude
-
         if airport.Schengen:
-
-            color = "blue"
-
+            color = "ffff0000"  # azul
         else:
+            color = "ff0000ff"  # rojo
 
-            color = "red"
-
-        ax.plot(
-            x,
-            y,
-            marker="o",
-            color=color
-        )
-
-        ax.text(
-            x + 1,
-            y + 1,
-            airport.ICAO,
-            fontsize=6
-        )
+        file.write('<Placemark>\n')
+        file.write('<name>' + airport.ICAO + '</name>\n')
+        file.write('<Style><IconStyle><color>' + color + '</color></IconStyle></Style>\n')
+        file.write('<Point><coordinates>')
+        file.write(str(airport.longitude) + ',' + str(airport.latitude) + ',0')
+        file.write('</coordinates></Point>\n')
+        file.write('</Placemark>\n')
 
         i = i + 1
 
-    ax.set_xlim(-180, 180)
+    file.write('</Document>\n')
+    file.write('</kml>\n')
 
-    ax.set_ylim(-90, 90)
+    file.close()
 
-    ax.set_title("Airport Map")
+    return 0
 
-    ax.set_xlabel("Longitude")
 
-    ax.set_ylabel("Latitude")
+# --------------------------------------------------
+# EXPORT FLIGHTS KML
+# --------------------------------------------------
 
-    ax.grid(True)
+def ExportFlightsKML(aircrafts, airports, filename):
 
-    canvas = FigureCanvasTkAgg(
-        fig,
-        master=frame
-    )
+    """
+    Exports flight routes to a KML file
+    for Google Earth, drawing lines between
+    origin airports and Barcelona (LEBL).
 
-    canvas.draw()
+    Parameters:
+        aircrafts (list)
+        airports (list)
+        filename (str)
 
-    canvas.get_tk_widget().pack()
+    Returns:
+        int
+    """
+
+    if len(aircrafts) == 0:
+
+        return -1
+
+    import os
+
+    os.makedirs(os.path.dirname(filename), exist_ok=True)
+
+    coords = AirportCoords(airports)
+
+    destination_lat = 41.2974
+
+    destination_lon = 2.0833
+
+    file = open(filename, "w")
+
+    file.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+    file.write('<kml xmlns="http://www.opengis.net/kml/2.2">\n')
+    file.write('<Document>\n')
+    file.write('<name>Flights to Barcelona</name>\n')
+
+    # destination placemark
+    file.write('<Placemark>\n')
+    file.write('<name>LEBL</name>\n')
+    file.write('<Style><IconStyle><color>ff0000ff</color></IconStyle></Style>\n')
+    file.write('<Point><coordinates>')
+    file.write(str(destination_lon) + ',' + str(destination_lat) + ',0')
+    file.write('</coordinates></Point>\n')
+    file.write('</Placemark>\n')
+
+    i = 0
+
+    while i < len(aircrafts):
+
+        aircraft = aircrafts[i]
+
+        if aircraft.origin in coords:
+
+            origin = coords[aircraft.origin]
+
+            origin_lat = origin[0]
+
+            origin_lon = origin[1]
+
+            # origin placemark
+            file.write('<Placemark>\n')
+            file.write('<name>' + aircraft.origin + '</name>\n')
+            file.write('<Style><IconStyle><color>ffff0000</color></IconStyle></Style>\n')
+            file.write('<Point><coordinates>')
+            file.write(str(origin_lon) + ',' + str(origin_lat) + ',0')
+            file.write('</coordinates></Point>\n')
+            file.write('</Placemark>\n')
+
+            # flight line
+            file.write('<Placemark>\n')
+            file.write('<name>' + aircraft.aircraft_id + '</name>\n')
+            file.write('<Style><LineStyle><color>88ffffff</color><width>1</width></LineStyle></Style>\n')
+            file.write('<LineString>\n')
+            file.write('<tessellate>1</tessellate>\n')
+            file.write('<coordinates>\n')
+            file.write(str(origin_lon) + ',' + str(origin_lat) + ',0\n')
+            file.write(str(destination_lon) + ',' + str(destination_lat) + ',0\n')
+            file.write('</coordinates>\n')
+            file.write('</LineString>\n')
+            file.write('</Placemark>\n')
+
+        i = i + 1
+
+    file.write('</Document>\n')
+    file.write('</kml>\n')
+
+    file.close()
+
+    return 0
