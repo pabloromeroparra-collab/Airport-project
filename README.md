@@ -24,7 +24,8 @@ También se incluye la funcionalidad de identificar vuelos de larga distancia ut
 
 Esta versión supone un avance importante hacia una simulación más realista del funcionamiento de un aeropuerto.
 
-VERSIÓN 3: En este vídeo presentamos la Versión 3 del proyecto Airport Management.
+VERSIÓN 3: https://youtu.be/RAZXyI4PgNQ
+En este vídeo presentamos la Versión 3 del proyecto Airport Management.
 En esta versión ampliamos la simulación incorporando la gestión de la estructura interna del aeropuerto de Barcelona (LEBL) y la asignación automática de puertas de embarque a los vuelos de llegada.
 La aplicación permite cargar la estructura del aeropuerto desde un archivo y asignar puertas disponibles a los aviones según su tipo de vuelo. También se han implementado funcionalidades para consultar la ocupación de las puertas, reiniciar las asignaciones y visualizar la distribución de ocupación mediante gráficas.
 Además, se incluyen nuevas herramientas de visualización, como mapas de vuelos y gráficas clasificadas por tipo de vuelo, así como la identificación de vuelos de larga distancia.
