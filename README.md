@@ -3,4 +3,4 @@ Martí Vazquez
 Paula Bautista
 Pablo Romero
 
-Los documentos del proyecto y los códigos se encuentran en el domain "Master" 
+Los documentos del proyecto y los códigos se encuentran en el branch "Master" 
