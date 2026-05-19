@@ -678,7 +678,7 @@ def show_long_distance():
 
 window = tk.Tk()
 
-window_color = "#F0F0F0"
+window_color = "#63C5DA"
 
 window.configure(bg=window_color)
 
@@ -692,46 +692,49 @@ frame_top = tk.Frame(window)
 
 frame_top.pack()
 
-scrollbar = tk.Scrollbar(
-    frame_top
+scrollbar = tk.Scrollbar(frame_top, bg=window_color)
+
+scrollbar.pack(side=tk.RIGHT,fill=tk.Y)
+
+text_box = tk.Text(frame_top,height=12,width=130,yscrollcommand=scrollbar.set)
+
+text_box.pack(side=tk.LEFT)
+
+scrollbar.config(command=text_box.yview)
+
+# ---------------- BOTTOM AREA ----------------
+
+frame_bottom = tk.Frame(window)
+
+frame_bottom.configure(bg=window_color)
+
+frame_bottom.pack(fill=tk.BOTH,expand=True)
+
+# LEFT = BUTTONS
+
+frame_buttons = tk.Frame(frame_bottom)
+
+frame_buttons.pack(side=tk.LEFT,fill=tk.Y,padx=10,pady=10)
+
+# RIGHT = PLOTS
+
+frame_plot = tk.Frame(frame_bottom)
+
+frame_plot.pack(side=tk.RIGHT,fill=tk.BOTH,expand=True,padx=10,pady=10)
+
+# SUBDIVISION OF BUTTONS
+
+frame_left = tk.Frame(frame_buttons)
+
+
+frame_left.pack(side=tk.LEFT,padx=10)
+
+frame_center = tk.Frame(frame_buttons)
+
+frame_center.pack(
+    side=tk.LEFT,
+    padx=10
 )
-
-scrollbar.pack(
-    side=tk.RIGHT,
-    fill=tk.Y
-)
-
-text_box = tk.Text(
-    frame_top,
-    height=12,
-    width=130,
-    yscrollcommand=scrollbar.set
-)
-
-text_box.pack(
-    side=tk.LEFT
-)
-
-scrollbar.config(
-    command=text_box.yview
-)
-# ---------------- CENTRAL AREA ----------------
-
-frame_middle = tk.Frame(window)
-
-frame_middle.pack()
-
-frame_left = tk.Frame(frame_middle)
-
-frame_left.grid(row=0, column=0, padx=10)
-
-frame_center = tk.Frame(frame_middle)
-
-frame_center.grid(row=0, column=1, padx=10)
-
-frame_plot = tk.Frame(frame_middle)
-
-frame_plot.grid(row=0, column=2, padx=10)
 
 # ---------------- INPUTS ----------------
 
@@ -902,4 +905,3 @@ label.pack(pady=10)
 # ---------------- START ----------------
 
 window.mainloop()
-
