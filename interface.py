@@ -28,7 +28,7 @@ def load_airports():
 
     text_box.delete("1.0", tk.END)
 
-    label.config(text="Loaded " + str(len(airports)) + " airports")
+    show_message(text="Loaded " + str(len(airports)) + " airports")
 
 
 def show_airports():
@@ -92,15 +92,15 @@ def add_airport():
 
         if result == 0:
 
-            label.config(text="Airport added")
+            show_message(text="Airport added")
 
         else:
 
-            label.config(text="Airport already exists")
+            show_message(text="Airport already exists")
 
     except ValueError:
 
-        label.config(text="Invalid input")
+        show_message(text="Invalid input")
 
 
 def remove_airport():
@@ -121,11 +121,11 @@ def remove_airport():
 
     if result == 0:
 
-        label.config(text="Airport removed")
+        show_message(text="Airport removed")
 
     else:
 
-        label.config(text="Airport not found")
+        show_message(text="Airport not found")
 
 
 def save_schengen():
@@ -152,17 +152,17 @@ def save_schengen():
 
     if result == 0:
 
-        label.config(text="Schengen airports saved")
+        show_message(text="Schengen airports saved")
 
     else:
 
-        label.config(text="Error saving")
+        show_message(text="Error saving")
 
 def export_kml():
 
     if len(airports) == 0:
 
-        label.config(text="Load airports first")
+        show_message(text="Load airports first")
 
         return
 
@@ -178,11 +178,11 @@ def export_kml():
 
     if result == 0:
 
-        label.config(text="KML exported to OUTPUTS/airports.kml")
+        show_message(text="KML exported to OUTPUTS/airports.kml")
 
     else:
 
-        label.config(text="Error exporting KML")
+        show_message(text="Error exporting KML")
 
 def plot_airports():
 
@@ -198,7 +198,7 @@ def plot_airports():
 
     if len(airports) == 0:
 
-        label.config(text="Load airports first")
+        show_message(text="Load airports first")
 
         return
 
@@ -229,7 +229,7 @@ def map_airports():
 
     if len(airports) == 0:
 
-        label.config(text="Load airports first")
+        show_message(text="Load airports first")
 
         return
 
@@ -247,11 +247,11 @@ def map_airports():
 
         os.startfile(os.path.abspath("OUTPUTS/airports.kml"))
 
-        label.config(text="Opened in Google Earth")
+        show_message(text="Opened in Google Earth")
 
     else:
 
-        label.config(text="Error exporting KML")
+        show_message(text="Error exporting KML")
 # ---------------- FUNCTIONS AIRCRAFTS ----------------
 
 def load_arrivals():
@@ -272,7 +272,7 @@ def load_arrivals():
 
     text_box.delete("1.0", tk.END)
 
-    label.config(text="Loaded " + str(len(aircrafts)) + " arrivals")
+    show_message(text="Loaded " + str(len(aircrafts)) + " arrivals")
 
 
 def show_aircrafts():
@@ -322,7 +322,7 @@ def plot_arrivals():
 
     if len(aircrafts) == 0:
 
-        label.config(text="Load arrivals first")
+        show_message(text="Load arrivals first")
 
         return
 
@@ -343,7 +343,7 @@ def plot_airlines():
 
     if len(aircrafts) == 0:
 
-        label.config(text="Load arrivals first")
+        show_message(text="Load arrivals first")
 
         return
 
@@ -364,7 +364,7 @@ def save_flights():
 
     if len(aircrafts) == 0:
 
-        label.config(text="Load arrivals first")
+        show_message(text="Load arrivals first")
 
         return
 
@@ -372,11 +372,11 @@ def save_flights():
 
     if result == 0:
 
-        label.config(text="Flights saved")
+        show_message(text="Flights saved")
 
     else:
 
-        label.config(text="Error saving flights")
+        show_message(text="Error saving flights")
 
 
 # --------------------------------------------------
@@ -393,13 +393,13 @@ def build_airport():
 
     if bcn == -1:
 
-        label.config(
+        show_message(
             text="Error loading airport"
         )
 
     else:
 
-        label.config(
+        show_message(
             text="Airport structure loaded"
         )
 
@@ -413,7 +413,7 @@ def assign_gates():
 
     if bcn == None:
 
-        label.config(
+        show_message(
             text="Load airport first"
         )
 
@@ -421,7 +421,7 @@ def assign_gates():
 
     if len(aircrafts) == 0:
 
-        label.config(
+        show_message(
             text="Load arrivals first"
         )
 
@@ -460,7 +460,7 @@ def assign_gates():
 
     text += str(not_assigned)
 
-    label.config(text=text)
+    show_message(text=text)
 
 
 # --------------------------------------------------
@@ -473,7 +473,7 @@ def show_occupancy():
 
     if bcn == None:
 
-        label.config(
+        show_message(
             text="Load airport first"
         )
 
@@ -500,7 +500,7 @@ def plot_occupancy():
 
     if bcn == None:
 
-        label.config(
+        show_message(
             text="Load airport first"
         )
 
@@ -517,7 +517,7 @@ def show_gate_assignments():
 
     if bcn == None:
 
-        label.config(
+        show_message(
             text="Load airport first"
         )
 
@@ -546,7 +546,7 @@ def reset_gates():
 
     if bcn == None:
 
-        label.config(
+        show_message(
             text="Load airport first"
         )
 
@@ -554,7 +554,7 @@ def reset_gates():
 
     ResetGates(bcn)
 
-    label.config(
+    show_message(
         text="All gates reset"
     )
 
@@ -564,7 +564,7 @@ def plot_gate_distribution():
 
     if bcn == None:
 
-        label.config(
+        show_message(
             text="Load airport first"
         )
 
@@ -581,7 +581,7 @@ def map_flights():
 
     if len(aircrafts) == 0:
 
-        label.config(
+        show_message(
             text="Load arrivals first"
         )
 
@@ -589,7 +589,7 @@ def map_flights():
 
     if len(airports) == 0:
 
-        label.config(
+        show_message(
             text="Load airports first"
         )
 
@@ -605,13 +605,13 @@ def map_flights():
 
         os.startfile(os.path.abspath("OUTPUTS/flights.kml"))
 
-        label.config(
+        show_message(
             text="Flights opened in Google Earth"
         )
 
     else:
 
-        label.config(
+        show_message(
             text="Error exporting flights KML"
         )
 
@@ -619,7 +619,7 @@ def plot_flights_type():
 
     if len(aircrafts) == 0:
 
-        label.config(
+        show_message(
             text="Load arrivals first"
         )
 
@@ -630,7 +630,7 @@ def show_long_distance():
 
     if len(aircrafts) == 0:
 
-        label.config(
+        show_message(
             text="Load arrivals first"
         )
 
@@ -638,7 +638,7 @@ def show_long_distance():
 
     if len(airports) == 0:
 
-        label.config(
+        show_message(
             text="Load airports first"
         )
 
@@ -701,6 +701,20 @@ text_box = tk.Text(frame_top,height=12,width=130,yscrollcommand=scrollbar.set)
 text_box.pack(side=tk.LEFT)
 
 scrollbar.config(command=text_box.yview)
+
+def show_message(text):
+
+    text_box.delete("1.0", tk.END)
+
+    text_box.insert(tk.END,text.upper())
+
+    text_box.tag_add(
+        "red",
+        "1.0",
+        tk.END
+    )
+
+    text_box.tag_config("red",foreground="red",font=("Arial", 12, "bold"))
 
 # ---------------- BOTTOM AREA ----------------
 
@@ -896,12 +910,40 @@ tk.Button(
     command=show_long_distance
 ).pack(fill="x", pady=2)
 
-# ---------------- STATUS ----------------
+# ---------------- FOOTER ----------------
 
-label = tk.Label(window, text="")
+frame_footer = tk.Frame(
+    window,
+    bg=window_color
+)
 
-label.pack(pady=10)
+frame_footer.pack(
+    side=tk.BOTTOM,
+    fill=tk.X,
+    pady=10
+)
+
+title_label = tk.Label(
+    frame_footer,
+    text="✈ AIRPORT & AIRCRAFT MANAGER ✈",
+    font=("Courier New", 16, "bold"),
+    fg="navy",
+    bg=window_color
+)
+
+title_label.pack()
+
+plane_label = tk.Label(
+    frame_footer,
+    text="───────────────🛫───────────────",
+    font=("Arial", 16),
+    fg="black",
+    bg=window_color
+)
+
+plane_label.pack()
 
 # ---------------- START ----------------
 
 window.mainloop()
+
