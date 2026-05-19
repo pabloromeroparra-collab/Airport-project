@@ -1,5 +1,6 @@
 import tkinter as tk
 from LEBL import *
+from PIL import Image, ImageTk
 
 # ---------------- VARIABLES ----------------
 
@@ -28,7 +29,7 @@ def load_airports():
 
     text_box.delete("1.0", tk.END)
 
-    label.config(text="Loaded " + str(len(airports)) + " airports")
+    show_message(text="Loaded " + str(len(airports)) + " airports")
 
 
 def show_airports():
@@ -92,15 +93,15 @@ def add_airport():
 
         if result == 0:
 
-            label.config(text="Airport added")
+            show_message(text="Airport added")
 
         else:
 
-            label.config(text="Airport already exists")
+            show_message(text="Airport already exists")
 
     except ValueError:
 
-        label.config(text="Invalid input")
+        show_message(text="Invalid input")
 
 
 def remove_airport():
@@ -121,11 +122,11 @@ def remove_airport():
 
     if result == 0:
 
-        label.config(text="Airport removed")
+        show_message(text="Airport removed")
 
     else:
 
-        label.config(text="Airport not found")
+        show_message(text="Airport not found")
 
 
 def save_schengen():
@@ -152,17 +153,21 @@ def save_schengen():
 
     if result == 0:
 
-        label.config(text="Schengen airports saved")
+        show_message(text="Schengen airports saved")
 
     else:
 
-        label.config(text="Error saving")
+        show_message(text="Error saving")
 
 def export_kml():
 
+    import os
+
     if len(airports) == 0:
 
-        label.config(text="Load airports first")
+        show_message(
+            text="Load airports first"
+        )
 
         return
 
@@ -174,15 +179,28 @@ def export_kml():
 
         i = i + 1
 
-    result = ExportKML(airports, "OUTPUTS/airports.kml")
+    result = ExportKML(
+        airports,
+        "OUTPUTS/airports.kml"
+    )
 
     if result == 0:
 
-        label.config(text="KML exported to OUTPUTS/airports.kml")
+        os.startfile(
+            os.path.abspath(
+                "OUTPUTS/airports.kml"
+            )
+        )
+
+        show_message(
+            text="Opened in Google Earth"
+        )
 
     else:
 
-        label.config(text="Error exporting KML")
+        show_message(
+            text="Error exporting KML"
+        )
 
 def plot_airports():
 
@@ -198,7 +216,7 @@ def plot_airports():
 
     if len(airports) == 0:
 
-        label.config(text="Load airports first")
+        show_message(text="Load airports first")
 
         return
 
@@ -215,21 +233,13 @@ def plot_airports():
 
 def map_airports():
 
-    """
-    Exports airports to KML and opens in Google Earth.
-
-    Parameters:
-        None
-
-    Returns:
-        None
-    """
-
     import os
 
     if len(airports) == 0:
 
-        label.config(text="Load airports first")
+        show_message(
+            text="Load airports first"
+        )
 
         return
 
@@ -241,17 +251,28 @@ def map_airports():
 
         i = i + 1
 
-    result = ExportKML(airports, "OUTPUTS/airports.kml")
+    result = ExportKML(
+        airports,
+        "OUTPUTS/airports.kml"
+    )
 
     if result == 0:
 
-        os.startfile(os.path.abspath("OUTPUTS/airports.kml"))
+        os.startfile(
+            os.path.abspath(
+                "OUTPUTS/airports.kml"
+            )
+        )
 
-        label.config(text="Opened in Google Earth")
+        show_message(
+            text="Opened in Google Earth"
+        )
 
     else:
 
-        label.config(text="Error exporting KML")
+        show_message(
+            text="Error exporting KML"
+        )
 # ---------------- FUNCTIONS AIRCRAFTS ----------------
 
 def load_arrivals():
@@ -272,7 +293,7 @@ def load_arrivals():
 
     text_box.delete("1.0", tk.END)
 
-    label.config(text="Loaded " + str(len(aircrafts)) + " arrivals")
+    show_message(text="Loaded " + str(len(aircrafts)) + " arrivals")
 
 
 def show_aircrafts():
@@ -322,7 +343,7 @@ def plot_arrivals():
 
     if len(aircrafts) == 0:
 
-        label.config(text="Load arrivals first")
+        show_message(text="Load arrivals first")
 
         return
 
@@ -343,7 +364,7 @@ def plot_airlines():
 
     if len(aircrafts) == 0:
 
-        label.config(text="Load arrivals first")
+        show_message(text="Load arrivals first")
 
         return
 
@@ -364,7 +385,7 @@ def save_flights():
 
     if len(aircrafts) == 0:
 
-        label.config(text="Load arrivals first")
+        show_message(text="Load arrivals first")
 
         return
 
@@ -372,11 +393,11 @@ def save_flights():
 
     if result == 0:
 
-        label.config(text="Flights saved")
+        show_message(text="Flights saved")
 
     else:
 
-        label.config(text="Error saving flights")
+        show_message(text="Error saving flights")
 
 
 # --------------------------------------------------
@@ -393,13 +414,13 @@ def build_airport():
 
     if bcn == -1:
 
-        label.config(
+        show_message(
             text="Error loading airport"
         )
 
     else:
 
-        label.config(
+        show_message(
             text="Airport structure loaded"
         )
 
@@ -413,7 +434,7 @@ def assign_gates():
 
     if bcn == None:
 
-        label.config(
+        show_message(
             text="Load airport first"
         )
 
@@ -421,7 +442,7 @@ def assign_gates():
 
     if len(aircrafts) == 0:
 
-        label.config(
+        show_message(
             text="Load arrivals first"
         )
 
@@ -460,7 +481,7 @@ def assign_gates():
 
     text += str(not_assigned)
 
-    label.config(text=text)
+    show_message(text=text)
 
 
 # --------------------------------------------------
@@ -473,7 +494,7 @@ def show_occupancy():
 
     if bcn == None:
 
-        label.config(
+        show_message(
             text="Load airport first"
         )
 
@@ -500,7 +521,7 @@ def plot_occupancy():
 
     if bcn == None:
 
-        label.config(
+        show_message(
             text="Load airport first"
         )
 
@@ -517,7 +538,7 @@ def show_gate_assignments():
 
     if bcn == None:
 
-        label.config(
+        show_message(
             text="Load airport first"
         )
 
@@ -546,7 +567,7 @@ def reset_gates():
 
     if bcn == None:
 
-        label.config(
+        show_message(
             text="Load airport first"
         )
 
@@ -554,7 +575,7 @@ def reset_gates():
 
     ResetGates(bcn)
 
-    label.config(
+    show_message(
         text="All gates reset"
     )
 
@@ -564,7 +585,7 @@ def plot_gate_distribution():
 
     if bcn == None:
 
-        label.config(
+        show_message(
             text="Load airport first"
         )
 
@@ -581,7 +602,7 @@ def map_flights():
 
     if len(aircrafts) == 0:
 
-        label.config(
+        show_message(
             text="Load arrivals first"
         )
 
@@ -589,7 +610,7 @@ def map_flights():
 
     if len(airports) == 0:
 
-        label.config(
+        show_message(
             text="Load airports first"
         )
 
@@ -605,13 +626,13 @@ def map_flights():
 
         os.startfile(os.path.abspath("OUTPUTS/flights.kml"))
 
-        label.config(
+        show_message(
             text="Flights opened in Google Earth"
         )
 
     else:
 
-        label.config(
+        show_message(
             text="Error exporting flights KML"
         )
 
@@ -619,7 +640,7 @@ def plot_flights_type():
 
     if len(aircrafts) == 0:
 
-        label.config(
+        show_message(
             text="Load arrivals first"
         )
 
@@ -630,7 +651,7 @@ def show_long_distance():
 
     if len(aircrafts) == 0:
 
-        label.config(
+        show_message(
             text="Load arrivals first"
         )
 
@@ -638,7 +659,7 @@ def show_long_distance():
 
     if len(airports) == 0:
 
-        label.config(
+        show_message(
             text="Load airports first"
         )
 
@@ -678,7 +699,7 @@ def show_long_distance():
 
 window = tk.Tk()
 
-window_color = "#F0F0F0"
+window_color = "#63C5DA"
 
 window.configure(bg=window_color)
 
@@ -688,12 +709,46 @@ window.geometry("1100x700")
 
 # ---------------- TOP OUTPUT ----------------
 
+from PIL import Image, ImageTk
+
 frame_top = tk.Frame(window)
 
 frame_top.pack()
 
+# -------- PLANE IMAGE --------
+
+try:
+
+    plane_image = Image.open(
+        "LOGO.png"
+    )
+
+    plane_image = plane_image.resize((200, 200))
+
+    plane_photo = ImageTk.PhotoImage(
+        plane_image
+    )
+
+    plane_label = tk.Label(
+        frame_top,
+        image=plane_photo,
+        bg=window_color
+    )
+
+    plane_label.pack(
+        side=tk.LEFT,
+        padx=10
+    )
+
+except:
+
+    pass
+
+# -------- TEXT AREA --------
+
 scrollbar = tk.Scrollbar(
-    frame_top
+    frame_top,
+    bg=window_color
 )
 
 scrollbar.pack(
@@ -715,23 +770,54 @@ text_box.pack(
 scrollbar.config(
     command=text_box.yview
 )
-# ---------------- CENTRAL AREA ----------------
 
-frame_middle = tk.Frame(window)
+def show_message(text):
 
-frame_middle.pack()
+    text_box.delete("1.0", tk.END)
 
-frame_left = tk.Frame(frame_middle)
+    text_box.insert(tk.END,text.upper())
 
-frame_left.grid(row=0, column=0, padx=10)
+    text_box.tag_add(
+        "red",
+        "1.0",
+        tk.END
+    )
 
-frame_center = tk.Frame(frame_middle)
+    text_box.tag_config("red",foreground="red",font=("Arial", 12, "bold"))
 
-frame_center.grid(row=0, column=1, padx=10)
+# ---------------- BOTTOM AREA ----------------
 
-frame_plot = tk.Frame(frame_middle)
+frame_bottom = tk.Frame(window)
 
-frame_plot.grid(row=0, column=2, padx=10)
+frame_bottom.configure(bg=window_color)
+
+frame_bottom.pack(fill=tk.BOTH,expand=True)
+
+# LEFT = BUTTONS
+
+frame_buttons = tk.Frame(frame_bottom)
+
+frame_buttons.pack(side=tk.LEFT,fill=tk.Y,padx=10,pady=10)
+
+# RIGHT = PLOTS
+
+frame_plot = tk.Frame(frame_bottom)
+
+frame_plot.pack(side=tk.RIGHT,fill=tk.BOTH,expand=True,padx=10,pady=10)
+
+# SUBDIVISION OF BUTTONS
+
+frame_left = tk.Frame(frame_buttons)
+
+
+frame_left.pack(side=tk.LEFT,padx=10)
+
+frame_center = tk.Frame(frame_buttons)
+
+frame_center.pack(
+    side=tk.LEFT,
+    padx=10
+)
 
 # ---------------- INPUTS ----------------
 
@@ -798,6 +884,7 @@ tk.Button(
     text="Map Airports",
     command=map_airports
 ).pack(fill="x", pady=2)
+
 
 # ---------------- AIRCRAFTS ----------------
 
@@ -893,11 +980,38 @@ tk.Button(
     command=show_long_distance
 ).pack(fill="x", pady=2)
 
-# ---------------- STATUS ----------------
+# ---------------- FOOTER ----------------
 
-label = tk.Label(window, text="")
+frame_footer = tk.Frame(
+    window,
+    bg=window_color
+)
 
-label.pack(pady=10)
+frame_footer.pack(
+    side=tk.BOTTOM,
+    fill=tk.X,
+    pady=10
+)
+
+title_label = tk.Label(
+    frame_footer,
+    text="✈ AIRPORT & AIRCRAFT MANAGER ✈",
+    font=("Exo", 12, "bold"),
+    fg="#12086F",
+    bg=window_color
+)
+
+title_label.pack()
+
+plane_label = tk.Label(
+    frame_footer,
+    text="G13: Martí Vázquez, Pablo Romero, Paula Bautista",
+    font=("Garamond", 12, "bold"),
+    fg="#FF6000",
+    bg=window_color
+)
+
+plane_label.pack()
 
 # ---------------- START ----------------
 

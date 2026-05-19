@@ -75,16 +75,43 @@ def LoadArrivals(filename):
 
             time = parts[2]
 
-            company = parts[3]
+            valid = True
 
-            aircraft = Aircraft(
-                aircraft_id,
-                company,
-                origin,
-                time
-            )
+            try:
 
-            aircrafts.append(aircraft)
+                time_parts = time.split(":")
+
+                if len(time_parts) != 2:
+
+                    valid = False
+
+                else:
+
+                    hour = int(time_parts[0])
+
+                    minute = int(time_parts[1])
+
+                    if hour < 0 or hour > 23:
+                        valid = False
+
+                    if minute < 0 or minute > 59:
+                        valid = False
+
+            except:
+
+                valid = False
+
+            if valid:
+                company = parts[3]
+
+                aircraft = Aircraft(
+                    aircraft_id,
+                    company,
+                    origin,
+                    time
+                )
+
+                aircrafts.append(aircraft)
 
         line = file.readline()
 
@@ -232,6 +259,13 @@ def PlotArrivalsTk(frame, aircrafts):
 # --------------------------------------------------
 # SAVE FLIGHTS
 # --------------------------------------------------
+def MapFlights(aircrafts, airports):
+
+    ExportFlightsKML(
+        aircrafts,
+        airports,
+        "OUTPUTS/flights.kml"
+    )
 
 def SaveFlights(aircrafts, filename):
 

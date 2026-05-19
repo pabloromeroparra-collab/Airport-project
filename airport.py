@@ -561,7 +561,6 @@ def PlotAirportsTk(frame, airports):
 
     canvas.get_tk_widget().pack()
 
-
 # --------------------------------------------------
 # AIRPORT COORDINATES
 # --------------------------------------------------

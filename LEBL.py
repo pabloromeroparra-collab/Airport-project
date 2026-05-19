@@ -67,7 +67,7 @@ class BarcelonaAP:
 
 def SetGates(area, init_gate, end_gate, prefix):
 
-    if end_gate < init_gate:
+    if end_gate <= init_gate:
 
         return -1
 
