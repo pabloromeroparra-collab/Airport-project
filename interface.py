@@ -204,75 +204,16 @@ def export_kml():
 
 def plot_airports():
 
-    """
-    Creates a plot with airport positions.
-
-    Parameters:
-        None
-
-    Returns:
-        None
-    """
-
-    if len(airports) == 0:
-
-        show_message(text="Load airports first")
-
-        return
-
-    i = 0
-
-    while i < len(airports):
-
-        SetSchengen(airports[i])
-
-        i = i + 1
-
-    PlotAirportsTk(frame_plot, airports)
+    select_airports_window(
+        "plot"
+    )
 
 
 def map_airports():
 
-    import os
-
-    if len(airports) == 0:
-
-        show_message(
-            text="Load airports first"
-        )
-
-        return
-
-    i = 0
-
-    while i < len(airports):
-
-        SetSchengen(airports[i])
-
-        i = i + 1
-
-    result = ExportKML(
-        airports,
-        "OUTPUTS/airports.kml"
+    select_airports_window(
+        "map"
     )
-
-    if result == 0:
-
-        os.startfile(
-            os.path.abspath(
-                "OUTPUTS/airports.kml"
-            )
-        )
-
-        show_message(
-            text="Opened in Google Earth"
-        )
-
-    else:
-
-        show_message(
-            text="Error exporting KML"
-        )
 # ---------------- FUNCTIONS AIRCRAFTS ----------------
 
 def load_arrivals():
@@ -289,11 +230,25 @@ def load_arrivals():
 
     global aircrafts
 
-    aircrafts = LoadArrivals("DATA/Arrivals.txt")
+    arrivals = LoadArrivals(
+        "DATA/Arrivals.txt"
+    )
+
+    departures = LoadDepartures(
+        "DATA/Departures.txt"
+    )
+
+    aircrafts = MergeMovements(
+        arrivals,
+        departures
+    )
 
     text_box.delete("1.0", tk.END)
 
-    show_message(text="Loaded " + str(len(aircrafts)) + " arrivals")
+    show_message(
+        text="Loaded merged flights: "
+             + str(len(aircrafts))
+    )
 
 
 def show_aircrafts():
@@ -331,44 +286,15 @@ def show_aircrafts():
 
 def plot_arrivals():
 
-    """
-    Creates a plot with aircraft arrivals.
-
-    Parameters:
-        None
-
-    Returns:
-        None
-    """
-
-    if len(aircrafts) == 0:
-
-        show_message(text="Load arrivals first")
-
-        return
-
-    PlotArrivalsTk(frame_plot, aircrafts)
-
+    select_aircrafts_window(
+        "arrivals"
+    )
 
 def plot_airlines():
 
-    """
-    Creates a plot with airlines information.
-
-    Parameters:
-        None
-
-    Returns:
-        None
-    """
-
-    if len(aircrafts) == 0:
-
-        show_message(text="Load arrivals first")
-
-        return
-
-    PlotAirlinesTk(frame_plot, aircrafts)
+    select_aircrafts_window(
+        "airlines"
+    )
 
 
 def save_flights():
@@ -595,18 +521,141 @@ def plot_gate_distribution():
         frame_plot,
         bcn
     )
+def gate_state_window():
 
-def map_flights():
+    global bcn
 
-    import os
+    if bcn == None:
+
+        show_message(
+            text="Load airport first"
+        )
+
+        return
 
     if len(aircrafts) == 0:
 
         show_message(
-            text="Load arrivals first"
+            text="Load flights first"
         )
 
         return
+
+    time = entry_hour.get()
+
+    gates = []
+
+    i = 0
+
+    while i < len(bcn.terminals):
+
+        terminal = bcn.terminals[i]
+
+        j = 0
+
+        while j < len(
+            terminal.boarding_areas
+        ):
+
+            area = (
+                terminal.boarding_areas[j]
+            )
+
+            k = 0
+
+            while k < len(area.gates):
+
+                gates.append(
+                    area.gates[k].name
+                )
+
+                k = k + 1
+
+            j = j + 1
+
+        i = i + 1
+
+    window_select = tk.Toplevel()
+
+    window_select.title(
+        "Select Gates"
+    )
+
+    window_select.geometry(
+        "300x500"
+    )
+
+    listbox = tk.Listbox(
+        window_select,
+        selectmode=tk.MULTIPLE
+    )
+
+    listbox.pack(
+        fill=tk.BOTH,
+        expand=True,
+        padx=10,
+        pady=10
+    )
+
+    i = 0
+
+    while i < len(gates):
+
+        listbox.insert(
+            tk.END,
+            gates[i]
+        )
+
+        i = i + 1
+
+    def select_all():
+
+        listbox.select_set(
+            0,
+            tk.END
+        )
+
+    def draw_gates():
+
+        selected = (
+            listbox.curselection()
+        )
+
+        selected_gates = []
+
+        i = 0
+
+        while i < len(selected):
+
+            selected_gates.append(
+                gates[selected[i]]
+            )
+
+            i = i + 1
+
+        PlotGateStateTk(
+            frame_plot,
+            bcn,
+            aircrafts,
+            time,
+            selected_gates
+        )
+
+        window_select.destroy()
+
+    tk.Button(
+        window_select,
+        text="Select All",
+        command=select_all
+    ).pack(fill="x")
+
+    tk.Button(
+        window_select,
+        text="Draw Gates",
+        command=draw_gates
+    ).pack(fill="x")
+
+def map_flights():
 
     if len(airports) == 0:
 
@@ -616,37 +665,16 @@ def map_flights():
 
         return
 
-    result = ExportFlightsKML(
-        aircrafts,
-        airports,
-        "OUTPUTS/flights.kml"
+    select_aircrafts_window(
+        "map"
     )
-
-    if result == 0:
-
-        os.startfile(os.path.abspath("OUTPUTS/flights.kml"))
-
-        show_message(
-            text="Flights opened in Google Earth"
-        )
-
-    else:
-
-        show_message(
-            text="Error exporting flights KML"
-        )
 
 def plot_flights_type():
 
-    if len(aircrafts) == 0:
+    select_aircrafts_window(
+        "type"
+    )
 
-        show_message(
-            text="Load arrivals first"
-        )
-
-        return
-
-    PlotFlightsTypeTk(frame_plot,aircrafts)
 def show_long_distance():
 
     if len(aircrafts) == 0:
@@ -694,6 +722,527 @@ def show_long_distance():
         )
 
         i = i + 1
+def plot_day_occupancy():
+
+    global bcn
+
+    if bcn == None:
+
+        show_message(
+            text="Load airport first"
+        )
+
+        return
+
+    if len(aircrafts) == 0:
+
+        show_message(
+            text="Load aircrafts first"
+        )
+
+        return
+
+    PlotDayOccupancy(
+        frame_plot,
+        bcn,
+        aircrafts
+    )
+# ---------------- SELECTION WINDOWS ----------------
+
+def select_airlines_window():
+
+    """
+    Opens a window to select airlines
+    for plotting.
+    """
+
+    if len(aircrafts) == 0:
+
+        show_message(
+            text="Load arrivals first"
+        )
+
+        return
+
+    companies = []
+
+    i = 0
+
+    while i < len(aircrafts):
+
+        company = aircrafts[i].company
+
+        if company not in companies:
+
+            companies.append(company)
+
+        i = i + 1
+
+    companies.sort()
+
+    window_select = tk.Toplevel()
+
+    window_select.title(
+        "Select Airlines"
+    )
+
+    window_select.geometry(
+        "300x400"
+    )
+
+    tk.Label(
+        window_select,
+        text="Choose airlines"
+    ).pack(pady=5)
+
+    listbox = tk.Listbox(
+        window_select,
+        selectmode=tk.MULTIPLE
+    )
+
+    listbox.pack(
+        fill=tk.BOTH,
+        expand=True,
+        padx=10,
+        pady=10
+    )
+
+    i = 0
+
+    while i < len(companies):
+
+        listbox.insert(
+            tk.END,
+            companies[i]
+        )
+
+        i = i + 1
+
+    def select_all():
+
+        listbox.select_set(
+            0,
+            tk.END
+        )
+
+    def plot_selected():
+
+        selected = listbox.curselection()
+
+        filtered = []
+
+        if len(selected) == 0:
+
+            show_message(
+                text="No airlines selected"
+            )
+
+            return
+
+        i = 0
+
+        while i < len(aircrafts):
+
+            ac = aircrafts[i]
+
+            j = 0
+
+            while j < len(selected):
+
+                airline = companies[
+                    selected[j]
+                ]
+
+                if ac.company == airline:
+
+                    filtered.append(ac)
+
+                j = j + 1
+
+            i = i + 1
+
+        PlotAirlinesTk(
+            frame_plot,
+            filtered
+        )
+
+        window_select.destroy()
+
+    tk.Button(
+        window_select,
+        text="Select All",
+        command=select_all
+    ).pack(
+        fill="x",
+        padx=10,
+        pady=2
+    )
+
+    tk.Button(
+        window_select,
+        text="Plot",
+        command=plot_selected
+    ).pack(
+        fill="x",
+        padx=10,
+        pady=5
+    )
+
+
+# ---------------- SELECTION WINDOWS ----------------
+
+def select_airports_window(mode):
+
+    """
+    Select airports for plots or maps.
+    """
+
+    import os
+
+    if len(airports) == 0:
+
+        show_message(
+            text="Load airports first"
+        )
+
+        return
+
+    codes = []
+
+    i = 0
+
+    while i < len(airports):
+
+        codes.append(
+            airports[i].ICAO
+        )
+
+        i = i + 1
+
+    codes.sort()
+
+    window_select = tk.Toplevel()
+
+    window_select.title(
+        "Select Airports"
+    )
+
+    window_select.geometry(
+        "300x400"
+    )
+
+    tk.Label(
+        window_select,
+        text="Choose airports"
+    ).pack(pady=5)
+
+    listbox = tk.Listbox(
+        window_select,
+        selectmode=tk.MULTIPLE
+    )
+
+    listbox.pack(
+        fill=tk.BOTH,
+        expand=True,
+        padx=10,
+        pady=10
+    )
+
+    i = 0
+
+    while i < len(codes):
+
+        listbox.insert(
+            tk.END,
+            codes[i]
+        )
+
+        i = i + 1
+
+    def select_all():
+
+        listbox.select_set(
+            0,
+            tk.END
+        )
+
+    def execute():
+
+        selected = listbox.curselection()
+
+        filtered = []
+
+        if len(selected) == 0:
+
+            show_message(
+                text="No airports selected"
+            )
+
+            return
+
+        i = 0
+
+        while i < len(airports):
+
+            airport = airports[i]
+
+            j = 0
+
+            while j < len(selected):
+
+                code = codes[
+                    selected[j]
+                ]
+
+                if airport.ICAO == code:
+
+                    filtered.append(
+                        airport
+                    )
+
+                j = j + 1
+
+            i = i + 1
+
+        if mode == "plot":
+
+            PlotAirportsTk(
+                frame_plot,
+                filtered
+            )
+
+        elif mode == "map":
+
+            result = ExportKML(
+                filtered,
+                "OUTPUTS/airports.kml"
+            )
+
+            if result == 0:
+
+                os.startfile(
+                    os.path.abspath(
+                        "OUTPUTS/airports.kml"
+                    )
+                )
+
+                show_message(
+                    text="Opened in Google Earth"
+                )
+
+        window_select.destroy()
+
+    tk.Button(
+        window_select,
+        text="Select All",
+        command=select_all
+    ).pack(
+        fill="x",
+        padx=10,
+        pady=2
+    )
+
+    tk.Button(
+        window_select,
+        text="Execute",
+        command=execute
+    ).pack(
+        fill="x",
+        padx=10,
+        pady=5
+    )
+
+
+def select_aircrafts_window(mode):
+
+    """
+    Select aircrafts / airlines
+    for plots or maps.
+    """
+
+    import os
+
+    if len(aircrafts) == 0:
+
+        show_message(
+            text="Load arrivals first"
+        )
+
+        return
+
+    companies = []
+
+    i = 0
+
+    while i < len(aircrafts):
+
+        company = aircrafts[i].company
+
+        if company not in companies:
+
+            companies.append(company)
+
+        i = i + 1
+
+    companies.sort()
+
+    window_select = tk.Toplevel()
+
+    window_select.title(
+        "Select Airlines"
+    )
+
+    window_select.geometry(
+        "300x400"
+    )
+
+    tk.Label(
+        window_select,
+        text="Choose airlines"
+    ).pack(pady=5)
+
+    listbox = tk.Listbox(
+        window_select,
+        selectmode=tk.MULTIPLE
+    )
+
+    listbox.pack(
+        fill=tk.BOTH,
+        expand=True,
+        padx=10,
+        pady=10
+    )
+
+    i = 0
+
+    while i < len(companies):
+
+        listbox.insert(
+            tk.END,
+            companies[i]
+        )
+
+        i = i + 1
+
+    def select_all():
+
+        listbox.select_set(
+            0,
+            tk.END
+        )
+
+    def execute():
+
+        selected = listbox.curselection()
+
+        filtered = []
+
+        if len(selected) == 0:
+
+            show_message(
+                text="No airlines selected"
+            )
+
+            return
+
+        i = 0
+
+        while i < len(aircrafts):
+
+            ac = aircrafts[i]
+
+            j = 0
+
+            while j < len(selected):
+
+                airline = companies[
+                    selected[j]
+                ]
+
+                if ac.company == airline:
+
+                    filtered.append(ac)
+
+                j = j + 1
+
+            i = i + 1
+
+        if mode == "arrivals":
+
+            PlotArrivalsTk(
+                frame_plot,
+                filtered
+            )
+
+        elif mode == "airlines":
+
+            PlotAirlinesTk(
+                frame_plot,
+                filtered
+            )
+
+
+        elif mode == "map":
+
+            result = ExportFlightsKML(
+
+                filtered,
+
+                airports,
+
+                "OUTPUTS/flights.kml"
+
+            )
+
+            if result == 0:
+                os.startfile(
+
+                    os.path.abspath(
+
+                        "OUTPUTS/flights.kml"
+
+                    )
+
+                )
+
+                show_message(
+
+                    text="Flights opened in Google Earth"
+
+                )
+
+
+        elif mode == "type":
+
+            PlotFlightsTypeTk(
+
+                frame_plot,
+
+                filtered
+
+            )
+
+        window_select.destroy()
+
+    tk.Button(
+        window_select,
+        text="Select All",
+        command=select_all
+    ).pack(
+        fill="x",
+        padx=10,
+        pady=2
+    )
+
+    tk.Button(
+        window_select,
+        text="Execute",
+        command=execute
+    ).pack(
+        fill="x",
+        padx=10,
+        pady=5
+    )
 
 # ---------------- WINDOW ----------------
 
@@ -839,6 +1388,22 @@ entry_lon = tk.Entry(frame_left)
 
 entry_lon.pack()
 
+tk.Label(
+    frame_left,
+    text="Hour (HH:MM)"
+).pack()
+
+entry_hour = tk.Entry(
+    frame_left
+)
+
+entry_hour.pack()
+
+entry_hour.insert(
+    0,
+    "10:00"
+)
+
 # ---------------- AIRPORTS ----------------
 
 tk.Label(frame_left, text="--- AIRPORTS ---").pack(pady=5)
@@ -945,6 +1510,12 @@ tk.Button(
 ).pack(fill="x", pady=2)
 
 tk.Button(
+        frame_center,
+        text="Day Occupancy",
+        command=plot_day_occupancy
+    ).pack(fill="x", pady=2)
+
+tk.Button(
     frame_center,
     text="Show Gate Assignments",
     command=show_gate_assignments
@@ -958,8 +1529,8 @@ tk.Button(
 
 tk.Button(
     frame_center,
-    text="Gate Distribution",
-    command=plot_gate_distribution
+    text="Gate Viewer",
+    command=gate_state_window
 ).pack(fill="x", pady=2)
 
 tk.Button(

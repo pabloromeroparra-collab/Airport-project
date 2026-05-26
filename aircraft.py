@@ -25,12 +25,21 @@ class Aircraft:
         Aircraft object
     """
 
-    def __init__(self, aircraft_id, company, origin, time_landing):
-
+    def __init__(
+            self,
+            aircraft_id,
+            company,
+            origin,
+            time_landing,
+            destination="",
+            time_departure=""
+    ):
         self.aircraft_id = aircraft_id
         self.company = company
         self.origin = origin
         self.time_landing = time_landing
+        self.destination = destination
+        self.time_departure = time_departure
 
 
 # --------------------------------------------------
@@ -119,6 +128,286 @@ def LoadArrivals(filename):
 
     return aircrafts
 
+# --------------------------------------------------
+# LOAD DEPARTURES
+# --------------------------------------------------
+
+def LoadDepartures(filename):
+
+    """
+    Loads aircraft departures.
+
+    Parameters:
+        filename (str)
+
+    Returns:
+        list
+    """
+
+    aircrafts = []
+
+    try:
+
+        file = open(filename, "r")
+
+    except:
+
+        return []
+
+    file.readline()
+
+    line = file.readline()
+
+    while line != "":
+
+        parts = line.split()
+
+        if len(parts) >= 4:
+
+            aircraft_id = parts[0]
+
+            destination = parts[1]
+
+            time_departure = parts[2]
+
+            company = parts[3]
+
+            valid = True
+
+            try:
+
+                time_parts = (
+                    time_departure.split(":")
+                )
+
+                if len(time_parts) != 2:
+
+                    valid = False
+
+                else:
+
+                    hour = int(
+                        time_parts[0]
+                    )
+
+                    minute = int(
+                        time_parts[1]
+                    )
+
+                    if hour < 0 or hour > 23:
+
+                        valid = False
+
+                    if minute < 0 or minute > 59:
+
+                        valid = False
+
+            except:
+
+                valid = False
+
+            if valid:
+
+                aircraft = Aircraft(
+                    aircraft_id,
+                    company,
+                    "",
+                    "",
+                    destination,
+                    time_departure
+                )
+
+                aircrafts.append(
+                    aircraft
+                )
+
+        line = file.readline()
+
+    file.close()
+
+    return aircrafts
+# --------------------------------------------------
+# MERGE MOVEMENTS
+# --------------------------------------------------
+
+def MergeMovements(
+    arrivals,
+    departures
+):
+
+    """
+    Merges arrivals and departures.
+
+    Parameters:
+        arrivals (list)
+        departures (list)
+
+    Returns:
+        list
+    """
+
+    if len(arrivals) == 0:
+
+        return []
+
+    if len(departures) == 0:
+
+        return []
+
+    merged = []
+
+    i = 0
+
+    while i < len(arrivals):
+
+        arrival = arrivals[i]
+
+        merged_aircraft = Aircraft(
+            arrival.aircraft_id,
+            arrival.company,
+            arrival.origin,
+            arrival.time_landing
+        )
+
+        found = False
+
+        j = 0
+
+        while j < len(departures) and found == False:
+
+            departure = departures[j]
+
+            same_id = False
+
+            if (
+                arrival.aircraft_id
+                ==
+                departure.aircraft_id
+            ):
+
+                same_id = True
+
+            if same_id:
+
+                arrival_time = (
+                    arrival.time_landing
+                )
+
+                departure_time = (
+                    departure.time_departure
+                )
+
+                if (
+                    arrival_time
+                    <
+                    departure_time
+                ):
+
+                    merged_aircraft.destination = (
+                        departure.destination
+                    )
+
+                    merged_aircraft.time_departure = (
+                        departure.time_departure
+                    )
+
+                    found = True
+
+            j = j + 1
+
+        merged.append(
+            merged_aircraft
+        )
+
+        i = i + 1
+
+    # ADD NIGHT AIRCRAFT
+
+    i = 0
+
+    while i < len(departures):
+
+        departure = departures[i]
+
+        found = False
+
+        j = 0
+
+        while j < len(arrivals) and found == False:
+
+            if (
+                arrivals[j].aircraft_id
+                ==
+                departure.aircraft_id
+            ):
+
+                found = True
+
+            j = j + 1
+
+        if found == False:
+
+            aircraft = Aircraft(
+                departure.aircraft_id,
+                departure.company,
+                "",
+                "",
+                departure.destination,
+                departure.time_departure
+            )
+
+            merged.append(
+                aircraft
+            )
+
+        i = i + 1
+
+    return merged
+
+# --------------------------------------------------
+# NIGHT AIRCRAFT
+# --------------------------------------------------
+
+def NightAircraft(aircrafts):
+
+    """
+    Returns aircrafts with only
+    departure information.
+
+    Parameters:
+        aircrafts (list)
+
+    Returns:
+        list
+    """
+
+    if len(aircrafts) == 0:
+
+        return []
+
+    result = []
+
+    i = 0
+
+    while i < len(aircrafts):
+
+        aircraft = aircrafts[i]
+
+        no_arrival = False
+
+        if aircraft.origin == "":
+
+            no_arrival = True
+
+        if no_arrival:
+
+            result.append(
+                aircraft
+            )
+
+        i = i + 1
+
+    return result
 
 # --------------------------------------------------
 # PLOT ARRIVALS
@@ -925,10 +1214,36 @@ def MapFlightsTk(frame,aircrafts,airports):
 
 if __name__ == "__main__":
 
-    aircrafts = LoadArrivals("DATA/arrivals.txt")
+    aircrafts = LoadArrivals("DATA/Arrivals.txt")
 
     print("Loaded:", len(aircrafts), "aircraft")
 
     PlotArrivals(aircrafts)
 
     PlotAirlines(aircrafts)
+
+    departures = LoadDepartures(
+        "DATA/Departures.txt"
+    )
+
+    print(
+        "Loaded departures:",
+        len(departures)
+    )
+    merged = MergeMovements(
+        aircrafts,
+        departures
+    )
+
+    print(
+        "Merged aircraft:",
+        len(merged)
+    )
+    night = NightAircraft(
+        merged
+    )
+
+    print(
+        "Night aircraft:",
+        len(night)
+    )

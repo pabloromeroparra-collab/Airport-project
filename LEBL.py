@@ -414,6 +414,327 @@ def AssignGate(bcn, aircraft):
         return -1
 
 # --------------------------------------------------
+# PLOT DAY OCCUPANCY
+# --------------------------------------------------
+
+def PlotDayOccupancy(
+    frame,
+    bcn,
+    aircrafts
+):
+
+    """
+    Plots gate occupancy
+    during the whole day.
+
+    Parameters:
+        frame
+        bcn
+        aircrafts (list)
+
+    Returns:
+        None
+    """
+
+    ResetGates(bcn)
+
+    hours = []
+
+    occupied_counts = []
+
+    unassigned_counts = []
+
+    hour = 0
+
+    while hour < 24:
+
+        time_text = (
+            str(hour).zfill(2)
+            + ":00"
+        )
+
+        not_assigned = (
+            AssignGatesAtTime(
+                bcn,
+                aircrafts,
+                time_text
+            )
+        )
+
+        occupied = 0
+
+        i = 0
+
+        while i < len(bcn.terminals):
+
+            terminal = bcn.terminals[i]
+
+            j = 0
+
+            while j < len(
+                terminal.boarding_areas
+            ):
+
+                area = (
+                    terminal.boarding_areas[j]
+                )
+
+                k = 0
+
+                while k < len(area.gates):
+
+                    gate = area.gates[k]
+
+                    if gate.occupied:
+
+                        occupied = (
+                            occupied + 1
+                        )
+
+                    k = k + 1
+
+                j = j + 1
+
+            i = i + 1
+
+        hours.append(hour)
+
+        occupied_counts.append(
+            occupied
+        )
+
+        unassigned_counts.append(
+            not_assigned
+        )
+
+        hour = hour + 1
+
+    widgets = frame.winfo_children()
+
+    i = 0
+
+    while i < len(widgets):
+
+        widgets[i].destroy()
+
+        i = i + 1
+
+    fig = Figure(figsize=(10, 5))
+
+    ax = fig.add_subplot(111)
+
+    ax.plot(
+        hours,
+        occupied_counts,
+        marker="o",
+        label="Occupied gates"
+    )
+
+    ax.plot(
+        hours,
+        unassigned_counts,
+        marker="o",
+        label="Unassigned aircraft"
+    )
+
+    ax.set_title(
+        "Airport Occupancy During Day"
+    )
+
+    ax.set_xlabel(
+        "Hour"
+    )
+
+    ax.set_ylabel(
+        "Aircraft"
+    )
+
+    ax.legend()
+
+    ax.grid(True)
+
+    canvas = FigureCanvasTkAgg(
+        fig,
+        master=frame
+    )
+
+    canvas.draw()
+
+    canvas.get_tk_widget().pack()
+# --------------------------------------------------
+# FREE GATE
+# --------------------------------------------------
+
+def FreeGate(bcn, aircraft_id):
+
+    """
+    Frees the gate occupied
+    by one aircraft.
+
+    Parameters:
+        bcn
+        aircraft_id (str)
+
+    Returns:
+        int
+    """
+
+    i = 0
+
+    found = False
+
+    while (
+        i < len(bcn.terminals)
+        and found == False
+    ):
+
+        terminal = bcn.terminals[i]
+
+        j = 0
+
+        while (
+            j < len(
+                terminal.boarding_areas
+            )
+            and found == False
+        ):
+
+            area = terminal.boarding_areas[j]
+
+            k = 0
+
+            while (
+                k < len(area.gates)
+                and found == False
+            ):
+
+                gate = area.gates[k]
+
+                if (
+                    gate.aircraft
+                    ==
+                    aircraft_id
+                ):
+
+                    gate.occupied = False
+
+                    gate.aircraft = ""
+
+                    found = True
+
+                k = k + 1
+
+            j = j + 1
+
+        i = i + 1
+
+    if found:
+
+        return 0
+
+    else:
+
+        return -1
+
+# --------------------------------------------------
+# ASSIGN GATES AT TIME
+# --------------------------------------------------
+
+def AssignGatesAtTime(
+    bcn,
+    aircrafts,
+    time
+):
+
+    """
+    Assigns gates dynamically
+    during one hour period.
+
+    Parameters:
+        bcn
+        aircrafts (list)
+        time (str)
+
+    Returns:
+        int
+    """
+
+    not_assigned = 0
+
+    start_hour = int(
+        time.split(":")[0]
+    )
+
+    end_hour = start_hour + 1
+
+    # --------------------------------
+    # FREE DEPARTED AIRCRAFT
+    # --------------------------------
+
+    i = 0
+
+    while i < len(aircrafts):
+
+        aircraft = aircrafts[i]
+
+        if aircraft.time_departure != "":
+
+            dep_hour = int(
+                aircraft.time_departure.split(":")[0]
+            )
+
+            if dep_hour < end_hour:
+
+                FreeGate(
+                    bcn,
+                    aircraft.aircraft_id
+                )
+
+        i = i + 1
+
+    # --------------------------------
+    # ASSIGN NEW ARRIVALS
+    # --------------------------------
+
+    i = 0
+
+    while i < len(aircrafts):
+
+        aircraft = aircrafts[i]
+
+        if aircraft.time_landing != "":
+
+            arr_hour = int(
+                aircraft.time_landing.split(":")[0]
+            )
+
+            inside_period = False
+
+            if (
+                arr_hour >= start_hour
+                and
+                arr_hour < end_hour
+            ):
+
+                inside_period = True
+
+            if inside_period:
+
+                result = AssignGate(
+                    bcn,
+                    aircraft
+                )
+
+                if result != 0:
+
+                    not_assigned = (
+                        not_assigned + 1
+                    )
+
+        i = i + 1
+
+    return not_assigned
+# --------------------------------------------------
 # TEST
 # --------------------------------------------------
 
@@ -423,8 +744,17 @@ if __name__ == "__main__":
         "DATA/LEBL.txt"
     )
 
-    aircrafts = LoadArrivals(
-        "DATA/arrivals.txt"
+    arrivals = LoadArrivals(
+        "DATA/Arrivals.txt"
+    )
+
+    departures = LoadDepartures(
+        "DATA/Departures.txt"
+    )
+
+    aircrafts = MergeMovements(
+        arrivals,
+        departures
     )
 
     i = 0
@@ -444,6 +774,37 @@ if __name__ == "__main__":
 
     while i < len(occupancy):
 
+        print(occupancy[i])
+
+        i = i + 1
+    FreeGate(
+        bcn,
+        aircrafts[0].aircraft_id
+    )
+
+    print(
+        "Gate freed"
+    )
+    ResetGates(bcn)
+
+    not_assigned = AssignGatesAtTime(
+        bcn,
+        aircrafts,
+        "10:00"
+    )
+
+    print(
+        "Not assigned:",
+        not_assigned
+    )
+
+    occupancy = GateOccupancy(
+        bcn
+    )
+
+    i = 0
+
+    while i < len(occupancy):
         print(occupancy[i])
 
         i = i + 1
@@ -722,6 +1083,163 @@ def PlotGateDistributionTk(
     ax.set_title(
         "Gate Distribution"
     )
+
+    canvas = FigureCanvasTkAgg(
+        fig,
+        master=frame
+    )
+
+    canvas.draw()
+
+    canvas.get_tk_widget().pack()
+
+# --------------------------------------------------
+# GATES VIEWER
+# --------------------------------------------------
+
+def PlotGateStateTk(
+    frame,
+    bcn,
+    aircrafts,
+    time,
+    selected_gates
+):
+
+    """
+    Draws selected gates
+    with occupancy colors.
+
+    Parameters:
+        frame
+        bcn
+        aircrafts
+        time
+        selected_gates
+
+    Returns:
+        None
+    """
+
+    ResetGates(bcn)
+
+    AssignGatesAtTime(
+        bcn,
+        aircrafts,
+        time
+    )
+
+    widgets = frame.winfo_children()
+
+    i = 0
+
+    while i < len(widgets):
+
+        widgets[i].destroy()
+
+        i = i + 1
+
+    fig = Figure(figsize=(12, 6))
+
+    ax = fig.add_subplot(111)
+
+    fig.patch.set_facecolor("white")
+
+    ax.set_facecolor("#f0f0f0")
+
+    gate_count = 0
+
+    i = 0
+
+    while i < len(bcn.terminals):
+
+        terminal = bcn.terminals[i]
+
+        j = 0
+
+        while j < len(
+                terminal.boarding_areas
+        ):
+
+            area = (
+                terminal.boarding_areas[j]
+            )
+
+            k = 0
+
+            while k < len(area.gates):
+
+                gate = area.gates[k]
+
+                if gate.name in selected_gates:
+
+                    col = gate_count % 8
+
+                    row = gate_count // 8
+
+                    x = col * 2
+
+                    y = -row * 2
+
+                    if gate.occupied:
+
+                        color = "red"
+
+                    else:
+
+                        color = "limegreen"
+
+                    rect = plt.Rectangle(
+                        (x, y),
+                        1.5,
+                        1.2,
+                        facecolor=color,
+                        edgecolor="black"
+                    )
+
+                    ax.add_patch(rect)
+
+                    text = gate.name
+
+                    if gate.aircraft != "":
+                        text += "\n"
+
+                        text += gate.aircraft
+
+                    ax.text(
+                        x + 0.75,
+                        y + 0.6,
+                        text,
+                        ha="center",
+                        va="center",
+                        fontsize=7,
+                        color="black"
+                    )
+
+                    gate_count = (
+                            gate_count + 1
+                    )
+
+                k = k + 1
+
+            j = j + 1
+
+        i = i + 1
+
+    ax.set_title(
+        "Gate Occupancy at "
+        + time
+    )
+    ax.set_xlim(-1, 16)
+
+    rows = (
+                   gate_count // 8
+           ) + 1
+
+    ax.set_ylim(
+        -rows * 2,
+        2
+    )
+    ax.axis("off")
 
     canvas = FigureCanvasTkAgg(
         fig,
