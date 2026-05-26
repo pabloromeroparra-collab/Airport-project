@@ -1132,6 +1132,8 @@ def PlotGateStateTk(
 
     i = 0
 
+    piers = {}
+
     while i < len(widgets):
 
         widgets[i].destroy()
@@ -1145,8 +1147,6 @@ def PlotGateStateTk(
     fig.patch.set_facecolor("white")
 
     ax.set_facecolor("#f0f0f0")
-
-    gate_count = 0
 
     i = 0
 
@@ -1172,52 +1172,12 @@ def PlotGateStateTk(
 
                 if gate.name in selected_gates:
 
-                    col = gate_count % 8
+                    pier = gate.name[:3]
 
-                    row = gate_count // 8
+                    if pier not in piers:
+                        piers[pier] = []
 
-                    x = col * 2
-
-                    y = -row * 2
-
-                    if gate.occupied:
-
-                        color = "red"
-
-                    else:
-
-                        color = "limegreen"
-
-                    rect = plt.Rectangle(
-                        (x, y),
-                        1.5,
-                        1.2,
-                        facecolor=color,
-                        edgecolor="black"
-                    )
-
-                    ax.add_patch(rect)
-
-                    text = gate.name
-
-                    if gate.aircraft != "":
-                        text += "\n"
-
-                        text += gate.aircraft
-
-                    ax.text(
-                        x + 0.75,
-                        y + 0.6,
-                        text,
-                        ha="center",
-                        va="center",
-                        fontsize=7,
-                        color="black"
-                    )
-
-                    gate_count = (
-                            gate_count + 1
-                    )
+                    piers[pier].append(gate)
 
                 k = k + 1
 
@@ -1225,19 +1185,126 @@ def PlotGateStateTk(
 
         i = i + 1
 
+
+    pier_names = list(
+        piers.keys()
+    )
+
+    terminal_width = (
+            len(pier_names) * 6
+    )
+
+    ax.plot(
+        [0, terminal_width],
+        [12, 12],
+        color="black",
+        linewidth=6
+    )
+    p = 0
+
+    while p < len(pier_names):
+
+        pier_name = pier_names[p]
+
+        gates = piers[pier_name]
+
+        pier_spacing = 6
+
+        pier_x = 3 + p * pier_spacing
+
+        ax.plot(
+            [pier_x, pier_x],
+            [12, 2],
+            color="black",
+            linewidth=4
+        )
+
+        ax.text(
+            pier_x,
+            13,
+            pier_name,
+            ha="center",
+            fontsize=12,
+            fontweight="bold"
+        )
+
+        g = 0
+
+        while g < len(gates):
+
+            gate = gates[g]
+
+            y = 10 - g * 1.2
+
+            if g % 2 == 0:
+
+                gate_x = pier_x - 1.8
+
+                line_x = pier_x - 0.3
+
+            else:
+
+                gate_x = pier_x + 0.8
+
+                line_x = pier_x + 0.3
+
+            ax.plot(
+                [pier_x, line_x],
+                [y + 0.35, y + 0.35],
+                color="black",
+                linewidth=1
+            )
+
+            if gate.occupied:
+
+                color = "red"
+
+            else:
+
+                color = "limegreen"
+
+            rect = plt.Rectangle(
+                (gate_x, y),
+                1,
+                0.7,
+                facecolor=color,
+                edgecolor="black"
+            )
+
+            ax.add_patch(rect)
+
+            text = gate.name
+
+            if gate.aircraft != "":
+                text += "\n"
+
+                text += gate.aircraft
+
+            ax.text(
+                gate_x + 0.5,
+                y + 0.35,
+                text,
+                ha="center",
+                va="center",
+                fontsize=6
+            )
+
+            g = g + 1
+
+        p = p + 1
+
     ax.set_title(
         "Gate Occupancy at "
         + time
     )
-    ax.set_xlim(-1, 16)
-
-    rows = (
-                   gate_count // 8
-           ) + 1
+    ax.set_xlim(
+        -2,
+        terminal_width + 2
+    )
 
     ax.set_ylim(
-        -rows * 2,
-        2
+        -70,
+        15
     )
     ax.axis("off")
 
