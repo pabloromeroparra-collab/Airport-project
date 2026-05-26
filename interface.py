@@ -1016,4 +1016,3 @@ plane_label.pack()
 # ---------------- START ----------------
 
 window.mainloop()
-
