@@ -412,7 +412,96 @@ def AssignGate(bcn, aircraft):
     else:
 
         return -1
+# --------------------------------------------------
+# SIMULATE DAY
+# --------------------------------------------------
 
+def SimulateDay(
+    bcn,
+    aircrafts
+):
+
+    """
+    Simulates one full airport day.
+
+    Parameters:
+        bcn
+        aircrafts
+
+    Returns:
+        list
+    """
+
+    ResetGates(bcn)
+
+    results = []
+
+    hour = 0
+
+    while hour < 24:
+
+        time_text = (
+            str(hour).zfill(2)
+            + ":00"
+        )
+
+        not_assigned = (
+            AssignGatesAtTime(
+                bcn,
+                aircrafts,
+                time_text
+            )
+        )
+
+        occupied = 0
+
+        i = 0
+
+        while i < len(bcn.terminals):
+
+            terminal = bcn.terminals[i]
+
+            j = 0
+
+            while j < len(
+                terminal.boarding_areas
+            ):
+
+                area = (
+                    terminal.boarding_areas[j]
+                )
+
+                k = 0
+
+                while k < len(area.gates):
+
+                    gate = area.gates[k]
+
+                    if gate.occupied:
+
+                        occupied = (
+                            occupied + 1
+                        )
+
+                    k = k + 1
+
+                j = j + 1
+
+            i = i + 1
+
+        line = (
+            time_text
+            + " | Occupied: "
+            + str(occupied)
+            + " | Unassigned: "
+            + str(not_assigned)
+        )
+
+        results.append(line)
+
+        hour = hour + 1
+
+    return results
 # --------------------------------------------------
 # PLOT DAY OCCUPANCY
 # --------------------------------------------------
@@ -734,80 +823,7 @@ def AssignGatesAtTime(
         i = i + 1
 
     return not_assigned
-# --------------------------------------------------
-# TEST
-# --------------------------------------------------
 
-if __name__ == "__main__":
-
-    bcn = LoadAirportStructure(
-        "DATA/LEBL.txt"
-    )
-
-    arrivals = LoadArrivals(
-        "DATA/Arrivals.txt"
-    )
-
-    departures = LoadDepartures(
-        "DATA/Departures.txt"
-    )
-
-    aircrafts = MergeMovements(
-        arrivals,
-        departures
-    )
-
-    i = 0
-
-    while i < len(aircrafts):
-
-        AssignGate(
-            bcn,
-            aircrafts[i]
-        )
-
-        i = i + 1
-
-    occupancy = GateOccupancy(bcn)
-
-    i = 0
-
-    while i < len(occupancy):
-
-        print(occupancy[i])
-
-        i = i + 1
-    FreeGate(
-        bcn,
-        aircrafts[0].aircraft_id
-    )
-
-    print(
-        "Gate freed"
-    )
-    ResetGates(bcn)
-
-    not_assigned = AssignGatesAtTime(
-        bcn,
-        aircrafts,
-        "10:00"
-    )
-
-    print(
-        "Not assigned:",
-        not_assigned
-    )
-
-    occupancy = GateOccupancy(
-        bcn
-    )
-
-    i = 0
-
-    while i < len(occupancy):
-        print(occupancy[i])
-
-        i = i + 1
 
 # --------------------------------------------------
 # PLOT GATE OCCUPANCY TK
@@ -1191,7 +1207,7 @@ def PlotGateStateTk(
     )
 
     terminal_width = (
-            len(pier_names) * 6
+            len(pier_names) * 10
     )
 
     ax.plot(
@@ -1208,7 +1224,7 @@ def PlotGateStateTk(
 
         gates = piers[pier_name]
 
-        pier_spacing = 6
+        pier_spacing = 10
 
         pier_x = 3 + p * pier_spacing
 
@@ -1221,10 +1237,10 @@ def PlotGateStateTk(
 
         ax.text(
             pier_x,
-            13,
+            12.4,
             pier_name,
             ha="center",
-            fontsize=12,
+            fontsize=16,
             fontweight="bold"
         )
 
@@ -1234,17 +1250,17 @@ def PlotGateStateTk(
 
             gate = gates[g]
 
-            y = 10 - g * 1.2
+            y = 10 - g * 1.8
 
             if g % 2 == 0:
 
-                gate_x = pier_x - 1.8
+                gate_x = pier_x - 4
 
                 line_x = pier_x - 0.3
 
             else:
 
-                gate_x = pier_x + 0.8
+                gate_x = pier_x + 1.5
 
                 line_x = pier_x + 0.3
 
@@ -1257,18 +1273,67 @@ def PlotGateStateTk(
 
             if gate.occupied:
 
-                color = "red"
+                color = "#ff4d4d"
 
             else:
 
-                color = "limegreen"
+                color = "#37c837"
+
+            if gate.aircraft != "":
+
+                i = 0
+
+                while i < len(aircrafts):
+
+                    aircraft = aircrafts[i]
+
+                    if (
+                            aircraft.aircraft_id
+                            ==
+                            gate.aircraft
+                    ):
+
+                        current_total = (
+                                int(time.split(":")[0]) * 60
+                                +
+                                int(time.split(":")[1])
+                        )
+
+                        # ---------------- DEPARTURE ----------------
+
+                        if aircraft.time_departure != "":
+
+                            dep_parts = (
+                                aircraft.time_departure
+                            ).split(":")
+
+                            dep_total = (
+                                    int(dep_parts[0]) * 60
+                                    +
+                                    int(dep_parts[1])
+                            )
+
+                            difference = (
+                                    dep_total
+                                    - current_total
+                            )
+
+                            if (
+                                    difference >= 0
+                                    and
+                                    difference <= 10
+                            ):
+                                color = "yellow"
+
+                    i = i + 1
 
             rect = plt.Rectangle(
                 (gate_x, y),
-                1,
-                0.7,
+                width=3.2,
+                height=0.65,
                 facecolor=color,
-                edgecolor="black"
+                edgecolor="gray",
+                linewidth=0.5
             )
 
             ax.add_patch(rect)
@@ -1276,17 +1341,17 @@ def PlotGateStateTk(
             text = gate.name
 
             if gate.aircraft != "":
-                text += "\n"
+                text += " | "
 
                 text += gate.aircraft
 
             ax.text(
-                gate_x + 0.5,
+                gate_x + 1.6,
                 y + 0.35,
                 text,
                 ha="center",
                 va="center",
-                fontsize=6
+                fontsize=7
             )
 
             g = g + 1
@@ -1298,12 +1363,12 @@ def PlotGateStateTk(
         + time
     )
     ax.set_xlim(
-        -2,
-        terminal_width + 2
+        -4,
+        terminal_width
     )
 
     ax.set_ylim(
-        -70,
+        -95,
         15
     )
     ax.axis("off")
@@ -1312,7 +1377,110 @@ def PlotGateStateTk(
         fig,
         master=frame
     )
+    ax.text(
+        -0.02,
+        0.92,
+        "■ Free",
+        transform=ax.transAxes,
+        fontsize=11,
+        color="green",
+        fontweight="bold"
+    )
 
+    ax.text(
+        -0.02,
+        0.87,
+        "■ Soon Departure",
+        transform=ax.transAxes,
+        fontsize=11,
+        color="orange",
+        fontweight="bold"
+    )
+
+    ax.text(
+        -0.02,
+        0.82,
+        "■ Occupied",
+        transform=ax.transAxes,
+        fontsize=11,
+        color="red",
+        fontweight="bold"
+    )
     canvas.draw()
 
     canvas.get_tk_widget().pack()
+
+# --------------------------------------------------
+# TEST
+# --------------------------------------------------
+
+if __name__ == "__main__":
+
+    bcn = LoadAirportStructure(
+        "DATA/LEBL.txt"
+    )
+
+    arrivals = LoadArrivals(
+        "DATA/Arrivals.txt"
+    )
+
+    departures = LoadDepartures(
+        "DATA/Departures.txt"
+    )
+
+    aircrafts = MergeMovements(
+        arrivals,
+        departures
+    )
+
+    i = 0
+
+    while i < len(aircrafts):
+
+        AssignGate(
+            bcn,
+            aircrafts[i]
+        )
+
+        i = i + 1
+
+    occupancy = GateOccupancy(bcn)
+
+    i = 0
+
+    while i < len(occupancy):
+
+        print(occupancy[i])
+
+        i = i + 1
+    FreeGate(
+        bcn,
+        aircrafts[0].aircraft_id
+    )
+
+    print(
+        "Gate freed"
+    )
+    ResetGates(bcn)
+
+    not_assigned = AssignGatesAtTime(
+        bcn,
+        aircrafts,
+        "10:00"
+    )
+
+    print(
+        "Not assigned:",
+        not_assigned
+    )
+
+    occupancy = GateOccupancy(
+        bcn
+    )
+
+    i = 0
+
+    while i < len(occupancy):
+        print(occupancy[i])
+
+        i = i + 1

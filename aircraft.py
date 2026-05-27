@@ -439,11 +439,12 @@ def PlotArrivals(aircrafts):
 
         time = aircrafts[i].time_landing
 
-        parts = time.split(":")
+        if time != "":
+            parts = time.split(":")
 
-        hour = int(parts[0])
+            hour = int(parts[0])
 
-        hours[hour] += 1
+            hours[hour] += 1
 
         i += 1
 
@@ -499,11 +500,12 @@ def PlotArrivalsTk(frame, aircrafts):
 
         time = aircrafts[i].time_landing
 
-        parts = time.split(":")
+        if time != "":
+            parts = time.split(":")
 
-        hour = int(parts[0])
+            hour = int(parts[0])
 
-        hours[hour] += 1
+            hours[hour] += 1
 
         i += 1
 
@@ -1088,7 +1090,12 @@ def PlotFlightsTypeTk(frame, aircrafts):
 
     canvas.get_tk_widget().pack()
 
-def MapFlightsTk(frame,aircrafts,airports):
+def MapFlightsTk(
+    frame,
+    aircrafts,
+    airports,
+    filter_airlines=None
+):
 
     coords = AirportCoords(airports)
 
@@ -1118,7 +1125,15 @@ def MapFlightsTk(frame,aircrafts,airports):
     while i < len(aircrafts):
 
         aircraft = aircrafts[i]
+        if (
+                filter_airlines != None
+                and
+                aircraft.company
+                not in filter_airlines
+        ):
+            i = i + 1
 
+            continue
         found = False
 
         keys = list(coords.keys())
