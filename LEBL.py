@@ -736,25 +736,29 @@ def AssignGatesAtTime(
 ):
 
     """
-    Assigns gates dynamically
-    during one hour period.
+Assigns gates dynamically
+during a 10-minute period.
 
-    Parameters:
-        bcn
-        aircrafts (list)
-        time (str)
+Parameters:
+    bcn
+    aircrafts (list)
+    time (str)
 
-    Returns:
-        int
-    """
+Returns:
+    int
+"""
 
     not_assigned = 0
 
-    start_hour = int(
-        time.split(":")[0]
+    parts = time.split(":")
+
+    start_time = (
+            int(parts[0]) * 60
+            +
+            int(parts[1])
     )
 
-    end_hour = start_hour + 1
+    end_time = start_time + 10
 
     # --------------------------------
     # FREE DEPARTED AIRCRAFT
@@ -768,11 +772,17 @@ def AssignGatesAtTime(
 
         if aircraft.time_departure != "":
 
-            dep_hour = int(
-                aircraft.time_departure.split(":")[0]
+            dep_parts = (
+                aircraft.time_departure
+            ).split(":")
+
+            dep_time = (
+                    int(dep_parts[0]) * 60
+                    +
+                    int(dep_parts[1])
             )
 
-            if dep_hour < end_hour:
+            if dep_time <= start_time:
 
                 FreeGate(
                     bcn,
@@ -793,21 +803,21 @@ def AssignGatesAtTime(
 
         if aircraft.time_landing != "":
 
-            arr_hour = int(
-                aircraft.time_landing.split(":")[0]
+            arr_parts = (
+                aircraft.time_landing
+            ).split(":")
+
+            arr_time = (
+                    int(arr_parts[0]) * 60
+                    +
+                    int(arr_parts[1])
             )
 
-            inside_period = False
-
             if (
-                arr_hour >= start_hour
-                and
-                arr_hour < end_hour
+                    arr_time >= start_time
+                    and
+                    arr_time < end_time
             ):
-
-                inside_period = True
-
-            if inside_period:
 
                 result = AssignGate(
                     bcn,
@@ -815,15 +825,12 @@ def AssignGatesAtTime(
                 )
 
                 if result != 0:
-
                     not_assigned = (
-                        not_assigned + 1
+                            not_assigned + 1
                     )
 
         i = i + 1
-
     return not_assigned
-
 
 # --------------------------------------------------
 # PLOT GATE OCCUPANCY TK
@@ -1409,7 +1416,35 @@ def PlotGateStateTk(
     canvas.draw()
 
     canvas.get_tk_widget().pack()
+def AssignNightGates(
+    bcn,
+    aircrafts
+):
 
+    if len(aircrafts) == 0:
+
+        return -1
+
+    i = 0
+
+    while i < len(aircrafts):
+
+        aircraft = aircrafts[i]
+
+        if (
+            aircraft.time_landing == ""
+            and
+            aircraft.time_departure != ""
+        ):
+
+            AssignGate(
+                bcn,
+                aircraft
+            )
+
+        i = i + 1
+
+    return 0
 # --------------------------------------------------
 # TEST
 # --------------------------------------------------

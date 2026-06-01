@@ -109,6 +109,7 @@ bcn = None
 aircrafts = []
 current_time_minutes = 600
 simulation_running = False
+dark_mode = False
 
 # ---------------- FUNCTIONS AIRPORTS ----------------
 
@@ -145,6 +146,14 @@ def show_airports():
     Returns:
         None
     """
+    if len(airports) == 0:
+        show_message(
+            text=
+            "No airports loaded.\n"
+            "Click LOAD AIRPORTS first."
+        )
+
+        return
 
     text_box.delete("1.0", tk.END)
 
@@ -186,6 +195,18 @@ def add_airport():
     lon = entry_lon.get()
 
     try:
+        if (
+                code == ""
+                or lat == ""
+                or lon == ""
+        ):
+            show_message(
+                text=
+                "Missing information.\n"
+                "Enter ICAO, latitude and longitude."
+            )
+
+            return
 
         airport = Airport(code, float(lat), float(lon))
 
@@ -364,6 +385,13 @@ def show_aircrafts():
     Returns:
         None
     """
+    if len(aircrafts) == 0:
+
+        show_message(
+            text="Load flights first"
+        )
+
+        return
 
     text_box.delete("1.0", tk.END)
 
@@ -461,17 +489,19 @@ def assign_gates():
     global bcn
 
     if bcn == None:
-
         show_message(
-            text="Load airport first"
+            text=
+            "Airport not loaded.\n"
+            "Click BUILD AIRPORT first."
         )
 
         return
 
     if len(aircrafts) == 0:
-
         show_message(
-            text="Load arrivals first"
+            text=
+            "No flights loaded.\n"
+            "Click LOAD FLIGHTS first."
         )
 
         return
@@ -510,6 +540,7 @@ def assign_gates():
     text += str(not_assigned)
 
     show_message(text=text)
+    update_status()
 
 
 # --------------------------------------------------
@@ -523,7 +554,9 @@ def show_occupancy():
     if bcn == None:
 
         show_message(
-            text="Load airport first"
+            text=
+            "Airport structure missing.\n"
+            "Click BUILD AIRPORT first."
         )
 
         return
@@ -550,7 +583,9 @@ def plot_occupancy():
     if bcn == None:
 
         show_message(
-            text="Load airport first"
+            text=
+            "Airport structure missing.\n"
+            "Click BUILD AIRPORT first."
         )
 
         return
@@ -602,7 +637,9 @@ def reset_gates():
     if bcn == None:
 
         show_message(
-            text="Load airport first"
+            text=
+            "Airport structure missing.\n"
+            "Click BUILD AIRPORT first."
         )
 
         return
@@ -634,22 +671,50 @@ def gate_state_window():
     global bcn
 
     if bcn == None:
-
         show_message(
-            text="Load airport first"
+            text=
+            "Gate Viewer unavailable.\n"
+            "Step 1: Click BUILD AIRPORT."
         )
 
         return
 
     if len(aircrafts) == 0:
+        show_message(
+            text=
+            "Gate Viewer unavailable.\n"
+            "Step 1: Click LOAD FLIGHTS."
+        )
+
+        return
+    time = entry_hour.get()
+    try:
+
+        parts = time.split(":")
+
+        hour = int(parts[0])
+
+        minute = int(parts[1])
+
+        if (
+                hour < 0
+                or hour > 23
+                or minute < 0
+                or minute > 59
+        ):
+            raise ValueError
+
+    except:
 
         show_message(
-            text="Load flights first"
+            text=
+            "Invalid time.\n"
+            "Use HH:MM format."
         )
 
         return
 
-    time = entry_hour.get()
+
 
     gates = []
 
@@ -768,7 +833,9 @@ def map_flights():
     if len(airports) == 0:
 
         show_message(
-            text="Load airports first"
+            text=
+            "Airport database not loaded.\n"
+            "Click LOAD AIRPORTS first."
         )
 
         return
@@ -837,15 +904,18 @@ def plot_day_occupancy():
     if bcn == None:
 
         show_message(
-            text="Load airport first"
+            text=
+            "Airport structure missing.\n"
+            "Click BUILD AIRPORT first."
         )
 
         return
 
     if len(aircrafts) == 0:
-
         show_message(
-            text="Load aircrafts first"
+            text=
+            "No flights loaded.\n"
+            "Click LOAD FLIGHTS first."
         )
 
         return
@@ -856,8 +926,6 @@ def plot_day_occupancy():
         aircrafts
     )
 def update_gate_view():
-
-    global current_hour
 
     global bcn
 
@@ -924,8 +992,8 @@ def next_hour():
     global current_time_minutes
 
     current_time_minutes = (
-        current_time_minutes + 30
-    ) % (24 * 60)
+                                   current_time_minutes + 10
+                           ) % (24 * 60)
 
     entry_hour.delete(0, tk.END)
 
@@ -942,7 +1010,7 @@ def previous_hour():
     global current_time_minutes
 
     current_time_minutes = (
-        current_time_minutes - 30
+        current_time_minutes - 10
     ) % (24 * 60)
 
     entry_hour.delete(0, tk.END)
@@ -991,9 +1059,11 @@ def start_simulation():
         return
 
     simulation_running = True
-
+    animate_plane()
     show_message(
-        text="Simulation started"
+        text=
+        "Simulation started.\n"
+        "Airport time will advance every second."
     )
 
     run_simulation()
@@ -1021,17 +1091,19 @@ def simulate_day():
     global bcn
 
     if bcn == None:
-
         show_message(
-            text="Load airport first"
+            text=
+            "Airport not loaded.\n"
+            "Click BUILD AIRPORT first."
         )
 
         return
 
     if len(aircrafts) == 0:
-
         show_message(
-            text="Load flights first"
+            text=
+            "No flights loaded.\n"
+            "Click LOAD FLIGHTS first."
         )
 
         return
@@ -1573,6 +1645,187 @@ def select_aircrafts_window(mode):
         pady=2
     )
 
+def toggle_theme():
+
+    global dark_mode
+    global theme_button
+
+
+    dark_mode = not dark_mode
+
+    if dark_mode:
+        frame_buttons.configure(
+            bg="#1E1E1E"
+        )
+        frame_plot.configure(
+            bg="#1E1E1E"
+        )
+        frame_airports_buttons.configure(bg="#1E1E1E")
+        frame_aircrafts_buttons.configure(bg="#1E1E1E")
+        frame_simulation_buttons.configure(bg="#1E1E1E")
+        frame_visual_buttons.configure(bg="#1E1E1E")
+        frame_airports.configure(
+            bg="#1E1E1E",
+            fg="white"
+        )
+
+        frame_aircrafts.configure(
+            bg="#1E1E1E",
+            fg="white"
+        )
+
+        frame_simulation.configure(
+            bg="#1E1E1E",
+            fg="white"
+        )
+
+        frame_visual.configure(
+            bg="#1E1E1E",
+            fg="white"
+        )
+
+        status_label.configure(
+            bg="#1E1E1E",
+            fg="white"
+        )
+
+        frame_footer.configure(
+            bg="#1E1E1E"
+        )
+        theme_button.text = "☀ Day Mode"
+
+        print(theme_button.text)
+
+        theme_button._draw(theme_button.bg_color)
+
+        window.configure(bg="#1E1E1E")
+
+        frame_main.configure(bg="#1E1E1E")
+
+        frame_bottom.configure(bg="#1E1E1E")
+
+        frame_output.configure(bg="#1E1E1E")
+
+        text_box.configure(
+                bg="#2D2D2D",
+                fg="white",
+                insertbackground="white"
+            )
+
+        title_label.configure(
+                bg="#1E1E1E",
+                fg="white"
+            )
+
+        plane_label.configure(
+                bg="#1E1E1E",
+                fg="#FFD700"
+            )
+
+    else:
+        frame_buttons.configure(
+            bg=window_color
+        )
+        frame_plot.configure(
+            bg="#DCDCDC"
+        )
+        frame_airports_buttons.configure(bg=window_color)
+        frame_aircrafts_buttons.configure(bg=window_color)
+        frame_simulation_buttons.configure(bg=window_color)
+        frame_visual_buttons.configure(bg=window_color)
+        frame_airports.configure(
+            bg=window_color,
+            fg="black"
+        )
+
+        frame_aircrafts.configure(
+            bg=window_color,
+            fg="black"
+        )
+
+        frame_simulation.configure(
+            bg=window_color,
+            fg="black"
+        )
+
+        frame_visual.configure(
+            bg=window_color,
+            fg="black"
+        )
+
+        status_label.configure(
+            bg="#DCDCDC",
+            fg="black"
+        )
+
+        frame_footer.configure(
+            bg=window_color
+        )
+        theme_button.text = "🌙 Night Mode"
+
+        print(theme_button.text)
+
+        theme_button._draw(theme_button.bg_color)
+
+        window.configure(bg=window_color)
+
+        frame_main.configure(bg=window_color)
+
+        frame_bottom.configure(bg=window_color)
+
+        frame_output.configure(bg=window_color)
+
+        text_box.configure(
+                bg="#EAF0FF",
+                fg="#12086F",
+                insertbackground="#12086F"
+            )
+
+        title_label.configure(
+                bg=window_color,
+                fg="#12086F"
+            )
+
+        plane_label.configure(
+                bg=window_color,
+                fg="#FF6000"
+            )
+def show_splash():
+
+    splash = tk.Toplevel()
+
+    splash.title("Welcome")
+
+    splash.geometry("500x300")
+
+    splash.resizable(False, False)
+
+    tk.Label(
+        splash,
+        text="✈ AIRPORT & AIRCRAFT MANAGER ✈",
+        font=("Arial", 16, "bold")
+    ).pack(pady=20)
+
+    tk.Label(
+        splash,
+        text=(
+            "Barcelona Airport Simulation System\n\n"
+            "Group 13\n\n"
+            "Martí Vázquez\n"
+            "Pablo Romero\n"
+            "Paula Bautista"
+        ),
+        font=("Arial", 11)
+    ).pack()
+
+    tk.Button(
+        splash,
+        text="Start",
+        command=splash.destroy,
+        width=15
+    ).pack(pady=20)
+
+    splash.grab_set()
 # ---------------- WINDOW ----------------
 
 window = tk.Tk()
@@ -1590,22 +1843,30 @@ def show_message(text):
 
     text_box.delete("1.0", tk.END)
 
-    text_box.insert(tk.END,text.upper())
+    text_box.insert(
+        tk.END,
+        "SYSTEM MESSAGE\n\n"
+        + text
+    )
 
     text_box.tag_add(
-        "red",
+        "message",
         "1.0",
         tk.END
     )
 
-    text_box.tag_config("red",foreground="red",font=("Arial", 12, "bold"))
+    text_box.tag_config(
+        "message",
+        foreground="#C00000",
+        font=("Arial", 11, "bold")
+    )
+
 def update_status():
 
     global bcn
 
     global aircrafts
 
-    global current_hour
 
     if bcn == None:
 
@@ -1650,16 +1911,23 @@ def update_status():
         i = i + 1
 
     free = total - occupied
+    utilization = 0
+
+    if total > 0:
+        utilization = (
+                              occupied * 100
+                      ) / total
 
     text = (
-        "TIME: "
-        + GetCurrentTimeText()
+            "TIME: "
+            + GetCurrentTimeText()
+            + "\n"
     )
 
     text += (
-        "ACTIVE FLIGHTS: "
-        + str(len(aircrafts))
-        + "\n"
+            "ACTIVE FLIGHTS: "
+            + str(len(aircrafts))
+            + "\n"
     )
 
     text += (
@@ -1669,8 +1937,15 @@ def update_status():
     )
 
     text += (
-        "FREE GATES: "
-        + str(free)
+            "FREE GATES: "
+            + str(free)
+            + "\n"
+    )
+
+    text += (
+            "UTILIZATION: "
+            + str(round(utilization, 1))
+            + "%"
     )
 
     try:
@@ -1701,6 +1976,158 @@ def show_help(title, message):
     )
 
     label.pack()
+def show_statistics():
+
+    global bcn
+    companies = []
+    counts = []
+
+    i = 0
+
+    while i < len(aircrafts):
+
+        company = aircrafts[i].company
+
+        if company in companies:
+
+            pos = companies.index(company)
+
+            counts[pos] += 1
+
+        else:
+
+            companies.append(company)
+
+            counts.append(1)
+
+        i += 1
+
+    most_company = ""
+    most_count = 0
+
+    i = 0
+
+    while i < len(counts):
+
+        if counts[i] > most_count:
+            most_count = counts[i]
+
+            most_company = companies[i]
+
+        i += 1
+
+    if bcn == None:
+
+        show_message(
+            text=
+            "Airport structure missing.\n"
+            "Click BUILD AIRPORT first."
+        )
+
+        return
+
+    if len(aircrafts) == 0:
+
+        show_message(
+            text=
+            "No flights loaded.\n"
+            "Click LOAD FLIGHTS first."
+        )
+
+        return
+
+    occupied = 0
+    total = 0
+
+    i = 0
+
+    while i < len(bcn.terminals):
+
+        terminal = bcn.terminals[i]
+
+        j = 0
+
+        while j < len(terminal.boarding_areas):
+
+            area = terminal.boarding_areas[j]
+
+            k = 0
+
+            while k < len(area.gates):
+
+                total += 1
+
+                if area.gates[k].occupied:
+
+                    occupied += 1
+
+                k += 1
+
+            j += 1
+
+        i += 1
+
+    utilization = 0
+
+    if total > 0:
+
+        utilization = (
+            occupied * 100
+        ) / total
+
+    text = (
+        "AIRPORT REPORT\n\n"
+        + "Flights Loaded: "
+        + str(len(aircrafts))
+        + "\n"
+        + "Airports Loaded: "
+        + str(len(airports))
+        + "\n"
+        + "Occupied Gates: "
+        + str(occupied)
+        + "\n"
+        + "Free Gates: "
+        + str(total - occupied)
+        + "\n"
+        + "Utilization: "
+        + str(round(utilization, 1))
+        + "%"
+        + "\n\nMost Used Airline: "
+        + most_company
+        + "\nFlights: "
+        + str(most_count)
+    )
+
+    text_box.delete("1.0", tk.END)
+
+    text_box.insert(
+        tk.END,
+        text
+    )
+    update_status()
+
+def animate_plane(x=-60):
+
+    global simulation_running
+
+    if not simulation_running:
+        return
+
+    plane_animation.place(
+        x=x,
+        y=820
+    )
+
+    plane_animation.lift()
+
+    if x > window.winfo_width():
+
+        x = -60
+
+    window.after(
+        20,
+        lambda: animate_plane(x + 5)
+    )
 # ---------------- MAIN AREA ----------------
 
 frame_main = tk.Frame(
@@ -1870,6 +2297,23 @@ frame_visual_buttons = tk.Frame(
 )
 
 frame_visual_buttons.pack()
+
+theme_button = RoundedButton(
+    frame_visual_buttons,
+    text="🌙 Night Mode",
+    command=toggle_theme,
+    width=195,
+    height=26,
+    radius=12
+)
+
+theme_button.grid(
+    row=2,
+    column=0,
+    columnspan=2,
+    padx=1,
+    pady=5
+)
 # ---------------- INPUTS ----------------
 
 tk.Label(frame_airports, text="ICAO Code").pack()
@@ -2358,7 +2802,7 @@ fg="black",
 
 RoundedButton(
     frame_simulation_buttons,
-    text="Previous Hour",
+    text="-10 min",
     command=previous_hour,
     width=95,
     height=26,
@@ -2374,13 +2818,13 @@ fg="black",
     command=lambda:
     show_help(
         "Previous Hour",
-        "Moves simulation one hour backwards."
+        "Moves simulation 10 minutes backwards."
     )
 ).grid(row=4, column=1)
 
 RoundedButton(
     frame_simulation_buttons,
-    text="Next Hour",
+    text="+10 min",
     command=next_hour,
     width=95,
     height=26,
@@ -2396,7 +2840,7 @@ fg="black",
     command=lambda:
     show_help(
         "Next Hour",
-        "Moves simulation one hour forward."
+        "Moves simulation 10 minutes forward."
     )
 ).grid(row=4, column=3)
 
@@ -2418,7 +2862,7 @@ fg="black",
     command=lambda:
     show_help(
         "Start Simulation",
-        "Starts automatic hour-by-hour airport simulation."
+        "Starts automatic 10-minute airport simulation."
     )
 ).grid(row=5, column=1)
 
@@ -2465,7 +2909,34 @@ fg="black",
         "Displays aircraft assigned to each gate."
     )
 ).grid(row=6, column=1)
-
+RoundedButton(
+    frame_simulation_buttons,
+    text="📊 Statistics",
+    command=show_statistics,
+    width=95,
+    height=26,
+    radius=12
+).grid(
+    row=6,
+    column=2,
+    padx=1,
+    pady=1
+)
+tk.Button(
+    frame_simulation_buttons,
+    text="ⓘ",
+    bg="white",
+    fg="black",
+    width=2,
+    command=lambda:
+    show_help(
+        "Statistics",
+        "Displays airport utilization and gate statistics."
+    )
+).grid(
+    row=6,
+    column=3
+)
 # ---------------- VISUALIZATION ----------------
 
 RoundedButton(
@@ -2558,14 +3029,50 @@ title_label.pack()
 
 plane_label = tk.Label(
     frame_footer,
-    text="G13: Martí Vázquez, Pablo Romero, Paula Bautista",
+    text=(
+        "Barcelona Airport Simulation System\n\n"
+        "Group 13\n\n"
+        "Martí Vázquez\n"
+        "Pablo Romero\n"
+        "Paula Bautista"
+    ),
     font=("Garamond", 12, "bold"),
     fg="#FF6000",
     bg=window_color
 )
+plane_img = Image.open(
+    "DATA/plane.png"
+)
 
+plane_img = plane_img.resize(
+    (50, 50)
+)
+
+plane_photo = ImageTk.PhotoImage(
+    plane_img
+)
+
+plane_animation = tk.Label(
+    window,
+    image=plane_photo,
+    bg=window_color
+)
+
+plane_animation.image = plane_photo
+
+plane_animation.place(
+    x=-60,
+    y=820
+)
+
+plane_animation.lift()
 plane_label.pack()
 
 # ---------------- START ----------------
+
+window.after(
+    100,
+    show_splash
+)
 
 window.mainloop()
