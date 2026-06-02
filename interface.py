@@ -283,7 +283,10 @@ def save_schengen():
         show_message(text="Error saving")
 
 def export_kml():
-
+    """
+        Exports selected airports to a KML file
+        and opens it in Google Earth.
+        """
     import os
 
     if len(airports) == 0:
@@ -326,14 +329,20 @@ def export_kml():
         )
 
 def plot_airports():
-
+    """
+        Opens the airport selection window
+        and plots the chosen airports.
+        """
     select_airports_window(
         "plot"
     )
 
 
 def map_airports():
-
+    """
+        Opens the airport selection window
+        and exports selected airports to Google Earth.
+        """
     select_airports_window(
         "map"
     )
@@ -415,13 +424,19 @@ def show_aircrafts():
 
 
 def plot_arrivals():
-
+    """
+    Opens an airline selection window
+    and plots hourly arrival distribution.
+    """
     select_aircrafts_window(
         "arrivals"
     )
 
 def plot_airlines():
-
+    """
+        Opens an airline selection window
+        and plots airline traffic statistics.
+        """
     select_aircrafts_window(
         "airlines"
     )
@@ -461,7 +476,10 @@ def save_flights():
 # --------------------------------------------------
 
 def build_airport():
-
+    """
+        Loads the LEBL airport structure from file
+        and creates terminals, boarding areas and gates.
+        """
     global bcn
 
     bcn = LoadAirportStructure(
@@ -485,6 +503,10 @@ def build_airport():
 # ASSIGN GATES
 # --------------------------------------------------
 def assign_gates():
+    """
+    Assigns available gates to all loaded aircraft
+    according to airline terminal and flight type.
+    """
 
     global bcn
 
@@ -548,6 +570,10 @@ def assign_gates():
 # --------------------------------------------------
 
 def show_occupancy():
+    """
+    Displays the occupancy status of all gates
+    in the airport structure.
+    """
 
     global bcn
 
@@ -577,7 +603,10 @@ def show_occupancy():
         i = i + 1
 
 def plot_occupancy():
-
+    """
+    Draws a graphical representation
+    of current gate occupancy.
+    """
     global bcn
 
     if bcn == None:
@@ -596,7 +625,10 @@ def plot_occupancy():
     )
 
 def show_gate_assignments():
-
+    """
+    Displays which aircraft is assigned
+    to each airport gate.
+    """
     global bcn
 
     if bcn == None:
@@ -631,7 +663,10 @@ def show_gate_assignments():
         i = i + 1
 
 def reset_gates():
-
+    """
+    Frees all airport gates and removes
+    current aircraft assignments.
+    """
     global bcn
 
     if bcn == None:
@@ -651,7 +686,10 @@ def reset_gates():
     )
 
 def plot_gate_distribution():
-
+    """
+    Plots gate distribution across
+    terminals and boarding areas.
+    """
     global bcn
 
     if bcn == None:
@@ -667,7 +705,11 @@ def plot_gate_distribution():
         bcn
     )
 def gate_state_window():
-
+    """
+    Opens a window that allows the user
+    to select gates and visualize their
+    state at a specific simulation time.
+    """
     global bcn
 
     if bcn == None:
@@ -829,7 +871,10 @@ def gate_state_window():
     ).pack(fill="x")
 
 def map_flights():
-
+    """
+    Opens the airline selection window
+    and exports flight routes to Google Earth.
+    """
     if len(airports) == 0:
 
         show_message(
@@ -845,13 +890,19 @@ def map_flights():
     )
 
 def plot_flights_type():
-
+    """
+    Opens an airline selection window
+    and plots flight type distribution.
+    """
     select_aircrafts_window(
         "type"
     )
 
 def show_long_distance():
-
+    """
+    Displays flights arriving from airports
+    located more than 2000 km away.
+    """
     if len(aircrafts) == 0:
 
         show_message(
@@ -898,7 +949,10 @@ def show_long_distance():
 
         i = i + 1
 def plot_day_occupancy():
-
+    """
+    Plots airport gate occupancy evolution
+    throughout the day.
+    """
     global bcn
 
     if bcn == None:
@@ -926,7 +980,10 @@ def plot_day_occupancy():
         aircrafts
     )
 def update_gate_view():
-
+    """
+    Updates the graphical gate viewer using
+    the current simulation time.
+    """
     global bcn
 
     if bcn == None:
@@ -988,7 +1045,10 @@ def update_gate_view():
     update_status()
 
 def next_hour():
-
+    """
+    Advances simulation time by 10 minutes
+    and refreshes the gate viewer.
+    """
     global current_time_minutes
 
     current_time_minutes = (
@@ -1006,7 +1066,10 @@ def next_hour():
 
 
 def previous_hour():
-
+    """
+    Moves simulation time back by 10 minutes
+    and refreshes the gate viewer.
+    """
     global current_time_minutes
 
     current_time_minutes = (
@@ -1023,7 +1086,10 @@ def previous_hour():
     update_gate_view()
 
 def run_simulation():
-
+    """
+    Internal loop that updates the simulation
+    automatically while it is running.
+    """
     global simulation_running
 
     if simulation_running == False:
@@ -1037,7 +1103,10 @@ def run_simulation():
         run_simulation
     )
 def start_simulation():
-
+    """
+    Starts automatic airport simulation
+    and aircraft animation.
+    """
     global simulation_running
 
     global bcn
@@ -1069,7 +1138,9 @@ def start_simulation():
     run_simulation()
 
 def stop_simulation():
-
+    """
+    Stops automatic airport simulation.
+    """
     global simulation_running
 
     if simulation_running == False:
@@ -1087,7 +1158,10 @@ def stop_simulation():
     )
 
 def simulate_day():
-
+    """
+    Runs a complete day simulation and
+    displays the assignment results.
+    """
     global bcn
 
     if bcn == None:
@@ -1130,7 +1204,9 @@ def simulate_day():
         i = i + 1
 
 def GetCurrentTimeText():
-
+    """
+    Converts simulation minutes into HH:MM format.
+    """
     global current_time_minutes
 
     hour = (
@@ -1646,7 +1722,9 @@ def select_aircrafts_window(mode):
     )
 
 def toggle_theme():
-
+    """
+    Switches between light mode and dark mode.
+    """
     global dark_mode
     global theme_button
 
@@ -1693,8 +1771,6 @@ def toggle_theme():
             bg="#1E1E1E"
         )
         theme_button.text = "☀ Day Mode"
-
-        print(theme_button.text)
 
         theme_button._draw(theme_button.bg_color)
 
@@ -1763,8 +1839,6 @@ def toggle_theme():
         )
         theme_button.text = "🌙 Night Mode"
 
-        print(theme_button.text)
-
         theme_button._draw(theme_button.bg_color)
 
         window.configure(bg=window_color)
@@ -1790,8 +1864,11 @@ def toggle_theme():
                 bg=window_color,
                 fg="#FF6000"
             )
-def show_splash():
 
+def show_splash():
+    """
+    Displays the project welcome screen.
+    """
     splash = tk.Toplevel()
 
     splash.title("Welcome")
@@ -1840,7 +1917,10 @@ window.geometry("1100x900")
 
 
 def show_message(text):
-
+    """
+    Displays a formatted system message
+    in the output panel.
+    """
     text_box.delete("1.0", tk.END)
 
     text_box.insert(
@@ -1862,7 +1942,10 @@ def show_message(text):
     )
 
 def update_status():
-
+    """
+    Updates the airport status panel with
+    occupancy and utilization information.
+    """
     global bcn
 
     global aircrafts
@@ -1959,7 +2042,10 @@ def update_status():
         return
 
 def show_help(title, message):
-
+    """
+    Opens a help window with information
+    about a selected functionality.
+    """
     help_window = tk.Toplevel()
 
     help_window.title(title)
@@ -1977,7 +2063,10 @@ def show_help(title, message):
 
     label.pack()
 def show_statistics():
-
+    """
+    Displays airport statistics including
+    utilization, gates and airline activity.
+    """
     global bcn
     companies = []
     counts = []
@@ -2107,7 +2196,10 @@ def show_statistics():
     update_status()
 
 def animate_plane(x=-60):
-
+    """
+    Animates the aircraft icon during
+    simulation playback.
+    """
     global simulation_running
 
     if not simulation_running:
@@ -2127,6 +2219,144 @@ def animate_plane(x=-60):
     window.after(
         20,
         lambda: animate_plane(x + 5)
+    )
+def show_extras():
+    """
+    Displays a window describing all extra
+    functionalities added to the project.
+    """
+    window_extras = tk.Toplevel()
+
+    window_extras.title(
+        "Extra Functionalities"
+    )
+
+    window_extras.geometry(
+        "800x600"
+    )
+
+    text = tk.Text(
+        window_extras,
+        wrap="word",
+        font=("Arial", 10)
+    )
+
+    text.pack(
+        fill=tk.BOTH,
+        expand=True
+    )
+
+    info = """
+
+EXTRA FUNCTIONALITIES DEVELOPED
+==============================
+
+The following features were NOT required in the official versions of the project
+and were developed as additional improvements.
+
+----------------------------------------------------
+1. Dynamic Gate Viewer
+----------------------------------------------------
+Visual representation of airport gates.
+Shows free, occupied and soon-departing aircraft.
+
+----------------------------------------------------
+2. Time Simulation
+----------------------------------------------------
+Airport status can be visualized at any
+moment of the day.
+
+Buttons:
+-10 min
++10 min
+Start Simulation
+Stop Simulation
+
+----------------------------------------------------
+3. Dark Mode
+----------------------------------------------------
+Complete interface theme switching.
+
+----------------------------------------------------
+4. Statistics Dashboard
+----------------------------------------------------
+Displays:
+
+- Flights loaded
+- Airports loaded
+- Occupied gates
+- Free gates
+- Utilization percentage
+- Most used airline
+
+----------------------------------------------------
+5. Interactive Help System
+----------------------------------------------------
+Every button contains a help icon
+with explanations.
+
+----------------------------------------------------
+6. Enhanced System Messages
+----------------------------------------------------
+User-friendly feedback messages.
+
+Examples:
+
+SYSTEM MESSAGE
+
+Airport loaded successfully
+
+SYSTEM MESSAGE
+
+Flights opened in Google Earth
+
+SYSTEM MESSAGE
+
+Simulation started
+
+----------------------------------------------------
+7. Dynamic Airport Status Panel
+----------------------------------------------------
+Real-time monitoring of:
+
+- Current simulation time
+- Active flights
+- Occupied gates
+- Free gates
+- Utilization percentage
+
+----------------------------------------------------
+8. Advanced Gate Occupancy Visualization
+----------------------------------------------------
+Graphical airport structure with terminals,
+boarding areas and gates.
+
+----------------------------------------------------
+9. Night Aircraft Support
+----------------------------------------------------
+Automatic assignment of aircraft already
+present at the airport before the start
+of the day.
+
+----------------------------------------------------
+10. Airport Splash Screen
+----------------------------------------------------
+Welcome screen with project information.
+
+----------------------------------------------------
+11. Airline Selection Windows
+----------------------------------------------------
+Interactive airline filtering before
+plots and maps.
+
+"""
+    text.insert(
+        tk.END,
+        info
+    )
+
+    text.config(
+        state="disabled"
     )
 # ---------------- MAIN AREA ----------------
 
@@ -2194,18 +2424,96 @@ frame_bottom.pack(fill=tk.BOTH,expand=True)
 
 # LEFT = BUTTONS
 
-frame_buttons = tk.Frame(frame_bottom)
+# --------------------------------
+# SCROLLABLE BUTTON PANEL
+# --------------------------------
 
-frame_buttons.pack(
+buttons_container = tk.Frame(
+    frame_bottom
+)
+
+buttons_container.pack(
     side=tk.LEFT,
     fill=tk.Y,
-    expand=False,
     padx=10,
     pady=10
 )
 
-frame_buttons.config(
-    width=240
+buttons_canvas = tk.Canvas(
+    buttons_container,
+    width=360,
+    highlightthickness=0
+)
+
+buttons_scrollbar = tk.Scrollbar(
+    buttons_container,
+    orient="vertical",
+    command=buttons_canvas.yview
+)
+
+frame_buttons = tk.Frame(
+    buttons_canvas
+)
+
+frame_buttons.bind(
+    "<Configure>",
+    lambda e:
+    buttons_canvas.configure(
+        scrollregion=
+        buttons_canvas.bbox("all")
+    )
+)
+
+buttons_canvas.create_window(
+    (0, 0),
+    window=frame_buttons,
+    anchor="nw"
+)
+
+buttons_canvas.configure(
+    yscrollcommand=
+    buttons_scrollbar.set
+)
+
+buttons_canvas.pack(
+    side="left",
+    fill="y",
+    expand=False
+)
+
+buttons_scrollbar.pack(
+    side="right",
+    fill="y"
+)
+
+# ----------------------------
+# MOUSE WHEEL
+# ----------------------------
+
+def _on_mousewheel(event):
+    """
+    Enables mouse wheel scrolling
+    in the button panel.
+    """
+    buttons_canvas.yview_scroll(
+        int(-1 * (event.delta / 120)),
+        "units"
+    )
+
+buttons_canvas.bind_all(
+    "<MouseWheel>",
+    _on_mousewheel
+)
+
+# ----------------------------
+# BUTTON GROUPS
+# ----------------------------
+
+frame_airports = tk.LabelFrame(
+    frame_buttons,
+    text="AIRPORTS",
+    padx=5,
+    pady=2
 )
 # RIGHT = PLOTS
 
@@ -2305,6 +2613,23 @@ theme_button = RoundedButton(
     width=195,
     height=26,
     radius=12
+)
+RoundedButton(
+    frame_visual_buttons,
+    text="⭐ Extras",
+    command=show_extras,
+    bg="#FFD700",
+    hover_bg="#E6C200",
+    fg="black",
+    width=195,
+    height=26,
+    radius=12
+).grid(
+    row=3,
+    column=0,
+    columnspan=2,
+    padx=1,
+    pady=5
 )
 
 theme_button.grid(
