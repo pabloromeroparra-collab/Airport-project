@@ -30,3 +30,22 @@ En esta versión ampliamos la simulación incorporando la gestión de la estruct
 La aplicación permite cargar la estructura del aeropuerto desde un archivo y asignar puertas disponibles a los aviones según su tipo de vuelo. También se han implementado funcionalidades para consultar la ocupación de las puertas, reiniciar las asignaciones y visualizar la distribución de ocupación mediante gráficas.
 Además, se incluyen nuevas herramientas de visualización, como mapas de vuelos y gráficas clasificadas por tipo de vuelo, así como la identificación de vuelos de larga distancia.
 La interfaz gráfica se ha ampliado con nuevos botones y funcionalidades que permiten gestionar de forma más completa la actividad del aeropuerto, acercando la aplicación a una simulación más realista y organizada del funcionamiento aeroportuario.
+
+VERSIÓN 4: 
+
+En este vídeo presentamos la Versión 4 del proyecto Airport Management.
+
+En esta versión hemos transformado la aplicación en una simulación dinámica del aeropuerto de Barcelona (LEBL), incorporando nuevas herramientas de visualización, análisis y control temporal.
+
+La aplicación permite simular la actividad aeroportuaria a lo largo del día mediante un sistema de tiempo dinámico, donde el usuario puede avanzar o retroceder la simulación en intervalos de tiempo y observar cómo evoluciona la ocupación de las puertas de embarque.
+
+Se ha desarrollado un Gate Viewer interactivo que permite visualizar gráficamente el estado de las puertas en un instante concreto, mostrando qué posiciones están ocupadas y facilitando el seguimiento de las operaciones aeroportuarias.
+
+Además, se han incorporado nuevas herramientas estadísticas que muestran información relevante sobre la actividad del aeropuerto, incluyendo el número de vuelos cargados, la ocupación de puertas, el porcentaje de utilización y la aerolínea con mayor actividad.
+
+La interfaz gráfica también ha sido ampliada con funcionalidades adicionales como un panel de estado en tiempo real, mensajes informativos mejorados, ventanas de selección para filtros de aerolíneas y aeropuertos, una pantalla de bienvenida y un sistema completo de ayuda integrado.
+
+Como mejora visual, se ha añadido un modo oscuro que permite adaptar la interfaz a diferentes condiciones de uso, así como animaciones y elementos gráficos que hacen la experiencia más intuitiva y atractiva para el usuario.
+
+Esta versión representa la culminación del proyecto, integrando la gestión de aeropuertos, vuelos, asignación de puertas, simulación temporal y herramientas de análisis dentro de una única aplicación interactiva.
+
