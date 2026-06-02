@@ -608,6 +608,7 @@ def plot_occupancy():
     of current gate occupancy.
     """
     global bcn
+    global frame_graph
 
     if bcn == None:
 
@@ -620,7 +621,7 @@ def plot_occupancy():
         return
 
     PlotGateOccupancyTk(
-        frame_plot,
+        frame_graph,
         bcn
     )
 
@@ -691,7 +692,7 @@ def plot_gate_distribution():
     terminals and boarding areas.
     """
     global bcn
-
+    global frame_graph
     if bcn == None:
 
         show_message(
@@ -701,7 +702,7 @@ def plot_gate_distribution():
         return
 
     PlotGateDistributionTk(
-        frame_plot,
+        frame_graph,
         bcn
     )
 def gate_state_window():
@@ -711,6 +712,7 @@ def gate_state_window():
     state at a specific simulation time.
     """
     global bcn
+    global frame_graph
 
     if bcn == None:
         show_message(
@@ -849,7 +851,7 @@ def gate_state_window():
             i = i + 1
 
         PlotGateStateTk(
-            frame_plot,
+            frame_graph,
             bcn,
             aircrafts,
             time,
@@ -954,6 +956,7 @@ def plot_day_occupancy():
     throughout the day.
     """
     global bcn
+    global frame_graph
 
     if bcn == None:
 
@@ -975,7 +978,7 @@ def plot_day_occupancy():
         return
 
     PlotDayOccupancy(
-        frame_plot,
+        frame_graph,
         bcn,
         aircrafts
     )
@@ -985,6 +988,7 @@ def update_gate_view():
     the current simulation time.
     """
     global bcn
+    global frame_graph
 
     if bcn == None:
 
@@ -1031,7 +1035,7 @@ def update_gate_view():
         i = i + 1
 
     PlotGateStateTk(
-        frame_plot,
+        frame_graph,
         bcn,
         aircrafts,
         time_text,
@@ -1232,7 +1236,7 @@ def select_airlines_window():
     Opens a window to select airlines
     for plotting.
     """
-
+    global frame_graph
     if len(aircrafts) == 0:
 
         show_message(
@@ -1339,7 +1343,7 @@ def select_airlines_window():
             i = i + 1
 
         PlotAirlinesTk(
-            frame_plot,
+            frame_graph,
             filtered
         )
 
@@ -1375,7 +1379,7 @@ def select_airports_window(mode):
     """
 
     import os
-
+    global frame_graph
     if len(airports) == 0:
 
         show_message(
@@ -1484,7 +1488,7 @@ def select_airports_window(mode):
         if mode == "plot":
 
             PlotAirportsTk(
-                frame_plot,
+                frame_graph,
                 filtered
             )
 
@@ -1538,7 +1542,7 @@ def select_aircrafts_window(mode):
     """
 
     import os
-
+    global frame_graph
     if len(aircrafts) == 0:
 
         show_message(
@@ -1647,16 +1651,19 @@ def select_aircrafts_window(mode):
         if mode == "arrivals":
 
             PlotArrivalsTk(
-                frame_plot,
+                frame_graph,
                 filtered
             )
 
         elif mode == "airlines":
 
             PlotAirlinesTk(
-                frame_plot,
+                frame_graph,
                 filtered
             )
+
+
+
 
 
         elif mode == "map":
@@ -1693,7 +1700,7 @@ def select_aircrafts_window(mode):
 
             PlotFlightsTypeTk(
 
-                frame_plot,
+                frame_graph,
 
                 filtered
 
@@ -1727,6 +1734,7 @@ def toggle_theme():
     """
     global dark_mode
     global theme_button
+    global frame_graph
 
 
     dark_mode = not dark_mode
@@ -1735,7 +1743,7 @@ def toggle_theme():
         frame_buttons.configure(
             bg="#1E1E1E"
         )
-        frame_plot.configure(
+        frame_graph.configure(
             bg="#1E1E1E"
         )
         frame_airports_buttons.configure(bg="#1E1E1E")
@@ -1761,7 +1769,6 @@ def toggle_theme():
             bg="#1E1E1E",
             fg="white"
         )
-
         status_label.configure(
             bg="#1E1E1E",
             fg="white"
@@ -1802,7 +1809,7 @@ def toggle_theme():
         frame_buttons.configure(
             bg=window_color
         )
-        frame_plot.configure(
+        frame_graph.configure(
             bg="#DCDCDC"
         )
         frame_airports_buttons.configure(bg=window_color)
@@ -1828,7 +1835,6 @@ def toggle_theme():
             bg=window_color,
             fg="black"
         )
-
         status_label.configure(
             bg="#DCDCDC",
             fg="black"
@@ -2516,15 +2522,19 @@ frame_airports = tk.LabelFrame(
     pady=2
 )
 # RIGHT = PLOTS
+# RIGHT = PLOTS
 
-frame_plot = tk.Frame(frame_bottom)
+frame_plot = tk.Frame(
+    frame_bottom
+)
 
 frame_plot.pack(
     side=tk.RIGHT,
     fill=tk.BOTH,
     expand=True,
     padx=10,
-    pady=10)
+    pady=10
+)
 
 status_label = tk.Label(
     frame_plot,
@@ -2538,6 +2548,14 @@ status_label.pack(
     pady=5
 )
 
+frame_graph = tk.Frame(
+    frame_plot
+)
+
+frame_graph.pack(
+    fill=tk.BOTH,
+    expand=True
+)
 # ---------------- BUTTON GROUPS ----------------
 
 frame_airports = tk.LabelFrame(
@@ -3282,7 +3300,7 @@ fg="black",
     command=lambda:
     show_help(
         "Map Flights",
-        "Exports selected flights into Google Earth."
+        "Exports selected flight routes to Google Earth."
     )
 ).grid(row=0, column=1)
 
