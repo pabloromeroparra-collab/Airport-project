@@ -31,7 +31,7 @@ La aplicación permite cargar la estructura del aeropuerto desde un archivo y as
 Además, se incluyen nuevas herramientas de visualización, como mapas de vuelos y gráficas clasificadas por tipo de vuelo, así como la identificación de vuelos de larga distancia.
 La interfaz gráfica se ha ampliado con nuevos botones y funcionalidades que permiten gestionar de forma más completa la actividad del aeropuerto, acercando la aplicación a una simulación más realista y organizada del funcionamiento aeroportuario.
 
-VERSIÓN 4: 
+VERSIÓN 4: https://youtu.be/kTu7Mvl5j9A
 
 En este vídeo presentamos la Versión 4 del proyecto Airport Management.
 
